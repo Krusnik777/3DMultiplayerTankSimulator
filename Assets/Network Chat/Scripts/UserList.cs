@@ -33,10 +33,8 @@ namespace NetworkChat
 		}
 
         [Server]
-		public void SvAddCurrentUser(int userId, string userNickname)
+		public void SvAddCurrentUser(UserData data)
 		{
-			var data = new UserData(userId, userNickname);
-
 			allUsersData.Add(data);
 
 			if (isServerOnly)
@@ -44,23 +42,23 @@ namespace NetworkChat
 
 			for (int i = 0; i < allUsersData.Count; i++)
             {
-				RpcAddCurrentUser(allUsersData[i].Id, allUsersData[i].Nickname);
+				RpcAddCurrentUser(allUsersData[i]);
             }
 		}
 
 		[Server]
-		public void SvRemoveCurrentUser(int userId)
+		public void SvRemoveCurrentUser(UserData data)
 		{
 			for (int i = 0; i < allUsersData.Count; i++)
 			{
-				if (allUsersData[i].Id == userId)
+				if (allUsersData[i].Id == data.Id)
 				{
 					allUsersData.RemoveAt(i);
 					break;
 				}
 			}
 
-			RpcRemoveCurrentUser(userId);
+			RpcRemoveCurrentUser(data);
 		}
 
 		[ClientRpc]
@@ -70,15 +68,13 @@ namespace NetworkChat
 		}
 
 		[ClientRpc]
-		private void RpcAddCurrentUser(int userId, string userNickname)
+		private void RpcAddCurrentUser(UserData data)
 		{
 			if (isClient && isServer)
             {
 				UpdateUserList?.Invoke(allUsersData);
 				return;
             }
-
-			var data = new UserData(userId, userNickname);
 
 			if (CheckIfListContains(data.Id)) return;
 
@@ -88,11 +84,11 @@ namespace NetworkChat
 		}
 
 		[ClientRpc]
-		private void RpcRemoveCurrentUser(int userId)
+		private void RpcRemoveCurrentUser(UserData data)
 		{
 			for (int i = 0; i < allUsersData.Count; i++)
 			{
-				if (allUsersData[i].Id == userId)
+				if (allUsersData[i].Id == data.Id)
 				{
 					allUsersData.RemoveAt(i);
 					break;

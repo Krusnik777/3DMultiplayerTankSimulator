@@ -4,19 +4,6 @@ using Mirror;
 
 namespace NetworkChat
 {
-    [System.Serializable]
-    public class UserData
-    {
-        public int Id;
-        public string Nickname;
-
-        public UserData(int id, string nickname)
-        {
-            Id = id;
-            Nickname = nickname;
-        }
-    }
-
     [RequireComponent(typeof(NetworkIdentity))]
     public class User : NetworkBehaviour
     {
@@ -33,8 +20,8 @@ namespace NetworkChat
             }
         }
 
-        public static UnityAction<int, string, string> ReceivedMessageToChat;
-        public static UnityAction<int, string, string, int> ReceivedPrivateMessageToChat;
+        public static UnityAction<UserData, string> ReceivedMessageToChat;
+        public static UnityAction<UserData, string, int> ReceivedPrivateMessageToChat;
         public static UnityAction UserReady;
         public UnityAction OnLocalUserStopped;
         public UnityAction<bool, int> OnPrivateModeChanges;
@@ -49,7 +36,7 @@ namespace NetworkChat
         {
             base.OnStopServer();
 
-            UserList.Instance.SvRemoveCurrentUser(data.Id);
+            UserList.Instance.SvRemoveCurrentUser(data);
         }
 
         public override void OnStopLocalPlayer()
@@ -85,19 +72,19 @@ namespace NetworkChat
 
             data.Nickname = inputMaster.GetNickname();
 
-            CmdAddUser(data.Id, data.Nickname);
+            CmdAddUser(data);
         }
 
         [Command]
-        private void CmdAddUser(int userId, string userNickname)
+        private void CmdAddUser(UserData data)
         {
-            UserList.Instance.SvAddCurrentUser(userId, userNickname);
+            UserList.Instance.SvAddCurrentUser(data);
         }
 
         [Command]
-        private void CmdRemoveUser(int userId)
+        private void CmdRemoveUser(UserData data)
         {
-            UserList.Instance.SvRemoveCurrentUser(userId);
+            UserList.Instance.SvRemoveCurrentUser(data);
         }
 
         #endregion
@@ -110,35 +97,35 @@ namespace NetworkChat
             if (inputMaster.MessageFieldIsEmpty) return;
 
             if (inPrivateMode)
-                CmdSendMessageToChat(data.Id, data.Nickname, inputMaster.GetString(), receiverId);
+                CmdSendMessageToChat(data, inputMaster.GetString(), receiverId);
             else
-                CmdSendMessageToChat(data.Id, data.Nickname, inputMaster.GetString());
+                CmdSendMessageToChat(data, inputMaster.GetString());
 
             inputMaster.ClearString();
         }
 
         [Command]
-        private void CmdSendMessageToChat(int userId, string userNickname, string message)
+        private void CmdSendMessageToChat(UserData data, string message)
         {
-            Debug.Log($"User send message to server. Message: {message}");
+            Debug.Log($"User {data.Id} send message to server. Message: {message}");
 
-            SvPostMessage(userId, userNickname, message);
+            SvPostMessage(data, message);
         }
 
         [Server]
-        private void SvPostMessage(int userId, string userNickname, string message)
+        private void SvPostMessage(UserData data, string message)
         {
-            Debug.Log($"Server received message by user. Message: {message}");
+            Debug.Log($"Server received message by user {data.Id}. Message: {message}");
 
-            RpcReceiveMessage(userId, userNickname, message);
+            RpcReceiveMessage(data, message);
         }
 
         [ClientRpc]
-        private void RpcReceiveMessage(int userId, string userNickname, string message)
+        private void RpcReceiveMessage(UserData data, string message)
         {
             Debug.Log($"User {data.Nickname}:({data.Id}) received message. Message: {message}");
 
-            ReceivedMessageToChat?.Invoke(userId, userNickname, message);
+            ReceivedMessageToChat?.Invoke(data, message);
         }
 
         #region PrivateChat
@@ -173,27 +160,27 @@ namespace NetworkChat
         }
 
         [Command]
-        private void CmdSendMessageToChat(int userId, string userNickname, string message, int receiverId)
+        private void CmdSendMessageToChat(UserData data, string message, int receiverId)
         {
             Debug.Log($"User send message to server. Message: {message}");
 
-            SvPostMessage(userId, userNickname, message, receiverId);
+            SvPostMessage(data, message, receiverId);
         }
 
         [Server]
-        private void SvPostMessage(int userId, string userNickname, string message, int receiverId)
+        private void SvPostMessage(UserData data, string message, int receiverId)
         {
             Debug.Log($"Server received message by user. Message: {message}");
 
-            RpcReceiveMessage(userId, userNickname, message, receiverId);
+            RpcReceiveMessage(data, message, receiverId);
         }
 
         [ClientRpc]
-        private void RpcReceiveMessage(int userId, string userNickname, string message,int receiverId)
+        private void RpcReceiveMessage(UserData data, string message,int receiverId)
         {
             Debug.Log($"User {data.Nickname}:({data.Id}) received message. Message: {message}");
 
-            ReceivedPrivateMessageToChat?.Invoke(userId, userNickname, message, receiverId);
+            ReceivedPrivateMessageToChat?.Invoke(data, message, receiverId);
         }
 
         private void SetPrivateMode(int receiverUserId, bool isActive)

@@ -22,31 +22,31 @@ namespace NetworkChat
             User.ReceivedPrivateMessageToChat += OnReceivedPrivateMessageToChat;
             UserList.UpdateUserList += OnUpdateUserList;
         }
-        /*
-        private void OnDisable()
+        
+        private void OnDestroy()
         {
             User.ReceivedMessageToChat -= OnReceivedMessageToChat;
-        User.ReceivedPrivateMessageToChat -= OnReceivedPrivateMessageToChat;
+            User.ReceivedPrivateMessageToChat -= OnReceivedPrivateMessageToChat;
             UserList.UpdateUserList -= OnUpdateUserList;
         }
-        */
-        private void OnReceivedMessageToChat(int userId, string userNickname, string message)
+        
+        private void OnReceivedMessageToChat(UserData data, string message)
         {
-            AppendMessage(userId, userNickname, message);
+            AppendMessage(data, message);
         }
 
-        private void OnReceivedPrivateMessageToChat(int userId, string userNickname, string message, int receiverId)
+        private void OnReceivedPrivateMessageToChat(UserData data, string message, int receiverId)
         {
-            AppendMessage(userId, userNickname, message, receiverId);
+            AppendMessage(data, message, receiverId);
         }
 
-        private void AppendMessage(int userId, string userNickname, string message)
+        private void AppendMessage(UserData data, string message)
         {
-            bool isLocalUser = userId == User.LocalUser.Data.Id;
+            bool isLocalUser = data.Id == User.LocalUser.Data.Id;
 
             var messageBox = InstantiateMessageBox(isLocalUser);
 
-            messageBox.SetText(userNickname, message);
+            messageBox.SetText(data.Nickname, message);
 
             messageBox.transform.SetParent(m_messagePanel);
             messageBox.transform.localScale = Vector3.one;
@@ -64,18 +64,15 @@ namespace NetworkChat
             */
         }
 
-        private void AppendMessage(int userId, string userNickname, string message, int receiverId)
+        private void AppendMessage(UserData data, string message, int receiverId)
         {
-            Debug.Log(User.LocalUser.Data.Id == receiverId);
-            Debug.Log("Local - " + User.LocalUser.Data.Id != userId.ToString());
+            if (User.LocalUser.Data.Id != data.Id && User.LocalUser.Data.Id != receiverId) return;
 
-            if (User.LocalUser.Data.Id != userId && User.LocalUser.Data.Id != receiverId) return;
-
-            bool isLocalUser = userId == User.LocalUser.Data.Id;
+            bool isLocalUser = data.Id == User.LocalUser.Data.Id;
 
             var messageBox = InstantiatePrivateMessageBox(isLocalUser);
 
-            messageBox.SetText("[ " + userNickname + " ]", message);
+            messageBox.SetText("[ " + data.Nickname + " ]", message);
 
             messageBox.transform.SetParent(m_messagePanel);
             messageBox.transform.localScale = Vector3.one;
