@@ -6,7 +6,7 @@ namespace NetworkSpaceShooter
     [RequireComponent(typeof(NetworkIdentity))]
     public class Player : NetworkBehaviour
     {
-        [SerializeField] private Vehicle m_spaceVehiclePrefab;
+        [SerializeField] private Vehicle[] m_vehiclePrefabs;
 
         public Vehicle ActiveVehicle { get; set; }
 
@@ -49,7 +49,9 @@ namespace NetworkSpaceShooter
         {
             if (ActiveVehicle != null) return;
 
-            GameObject playerVehicle = Instantiate(m_spaceVehiclePrefab.gameObject, transform.position, Quaternion.identity);
+            int index = Random.Range(0, m_vehiclePrefabs.Length);
+
+            GameObject playerVehicle = Instantiate(m_vehiclePrefabs[index].gameObject, transform.position, Quaternion.identity);
             NetworkServer.Spawn(playerVehicle, netIdentity.connectionToClient);
 
             ActiveVehicle = playerVehicle.GetComponent<Vehicle>();

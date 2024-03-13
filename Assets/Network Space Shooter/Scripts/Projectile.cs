@@ -11,7 +11,22 @@ namespace NetworkSpaceShooter
 
         private Transform m_parent;
 
-        public void SetParent(Transform parent) => m_parent = parent;
+        private float stepAmp = 0.001f;
+
+        private Vehicle parentVehicle;
+
+        public void SetParent(Transform parent)
+        {
+            m_parent = parent;
+
+            if (m_parent != null)
+            {
+                if (m_parent.TryGetComponent(out Vehicle vehicle))
+                {
+                    parentVehicle = vehicle;
+                }
+            }
+        }
 
         private void Start()
         {
@@ -21,6 +36,13 @@ namespace NetworkSpaceShooter
         private void Update()
         {
             float stepLength = Time.deltaTime * m_movementSpeed;
+
+            if (parentVehicle != null)
+            {
+                if (parentVehicle.MovingSpeed != 0)
+                    stepLength += parentVehicle.MovingSpeed * stepAmp;
+            }
+
             Vector2 step = transform.up * stepLength;
 
             transform.position += new Vector3(step.x, step.y, 0);
