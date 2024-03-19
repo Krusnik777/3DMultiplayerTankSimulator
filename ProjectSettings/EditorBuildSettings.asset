@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Network Space Shooter/Scenes/NetworkSpaceShooter.unity
+    path: Assets/Tests/Network Space Shooter/Scenes/NetworkSpaceShooter.unity
     guid: 8723982abcc26ec4dbe6dd66d7ca3038
   m_configObjects: {}
