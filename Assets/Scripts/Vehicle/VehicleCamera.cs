@@ -19,8 +19,13 @@ namespace MultiplayerTanks
         [SerializeField] private float m_minDistance;
         [SerializeField] private float m_distanceOffsetFromCollisionHit;
         [SerializeField] private float m_distanceLerpRate;
+        [Header("ZoomOptics")]
+        [SerializeField] private GameObject m_zoomMaskEffect;
+        [SerializeField] private float m_zoomedFOV;
+        [SerializeField] private float m_zoomedMaxVerticalAngle;
 
         private Camera m_camera;
+        private float m_defaultFOV;
 
         private Vector2 m_rotationControl;
 
@@ -28,12 +33,20 @@ namespace MultiplayerTanks
         private float deltaRotationY;
 
         private float currentDistance;
+        private float lastDistance;
+
+        private float defaultMaxVerticalAngle;
+
+        private bool isZoomed;
 
         public void SetTarget(Vehicle target) => m_vehicle = target;
 
         private void Start()
         {
             m_camera = GetComponent<Camera>();
+            m_defaultFOV = m_camera.fieldOfView;
+
+            defaultMaxVerticalAngle = m_maxVerticalAngle;
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -44,14 +57,14 @@ namespace MultiplayerTanks
             UpdateControls();
 
             m_distance = Mathf.Clamp(m_distance, m_minDistance, m_maxDistance);
+            isZoomed = m_distance <= m_minDistance;
 
             // Calculate rotation and translation
             deltaRotationX += m_rotationControl.x * m_rotateSensitive;
-            deltaRotationY += m_rotationControl.y * m_rotateSensitive;
+            deltaRotationY += m_rotationControl.y * -m_rotateSensitive;
 
             deltaRotationY = ClampAngle(deltaRotationY, m_minVerticalAngle, m_maxVerticalAngle);
 
-            //Quaternion finalRotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(deltaRotationY, deltaRotationX, 0), 0.25f);
             Quaternion finalRotation = Quaternion.Euler(deltaRotationY, deltaRotationX, 0);
             Vector3 finalPosition = m_vehicle.transform.position - (finalRotation * Vector3.forward * m_distance);
             finalPosition = AddLocalOffset(finalPosition);
@@ -66,7 +79,6 @@ namespace MultiplayerTanks
             if (Physics.Linecast(m_vehicle.transform.position + new Vector3(0, m_offset.y, 0), finalPosition, out hit))
             {
                 float distanceToHit = Vector3.Distance(m_vehicle.transform.position + new Vector3(0, m_offset.y, 0), hit.point);
-                //float distanceToHit = hit.distance;
 
                 if (hit.transform != m_vehicle)
                 {
@@ -85,21 +97,47 @@ namespace MultiplayerTanks
             transform.rotation = finalRotation;
             transform.position = finalPosition;
             transform.position = AddLocalOffset(transform.position);
+
+            // Zoom
+            m_zoomMaskEffect.SetActive(isZoomed);
+            if (isZoomed)
+            {
+                transform.position = m_vehicle.ZoomOpticsPosition.position;
+                m_camera.fieldOfView = m_zoomedFOV;
+                m_maxVerticalAngle = m_zoomedMaxVerticalAngle;
+            }
+            else
+            {
+                m_camera.fieldOfView = m_defaultFOV;
+                m_maxVerticalAngle = defaultMaxVerticalAngle;
+            }
         }
 
         private void UpdateControls()
         {
             m_rotationControl = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
             m_distance += -Input.mouseScrollDelta.y * m_scrollSensitive;
+
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                isZoomed = !isZoomed;
+
+                if (isZoomed)
+                {
+                    lastDistance = m_distance;
+                    m_distance = m_minDistance;
+                }
+                else
+                {
+                    m_distance = lastDistance;
+                    currentDistance = lastDistance;
+                }
+            }
         }
 
         private float ClampAngle(float angle, float min, float max)
         {
-            /*
-            angle %= 360;
-            angle = angle > 180 ? angle - 360 : angle;*/
-
-            if (angle < - 360)
+            if (angle < -360)
             {
                 angle += 360;
             }
@@ -115,7 +153,7 @@ namespace MultiplayerTanks
         {
             Vector3 result = position;
 
-            result.y += m_offset.y;
+            result += new Vector3(0, m_offset.y, 0);
             result += transform.right * m_offset.x;
             result += transform.forward * m_offset.z;
 

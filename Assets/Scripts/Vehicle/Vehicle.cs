@@ -8,6 +8,9 @@ namespace MultiplayerTanks
         [Header("EngineSound")]
         [SerializeField] private AudioSource m_engineSound;
         [SerializeField] private float m_enginePitchModifier;
+        [Header("ZoomOptics")]
+        [SerializeField] protected Transform m_zoomOpticsPosition;
+        public Transform ZoomOpticsPosition => m_zoomOpticsPosition;
 
         protected Vector3 targetInputControl;
 
