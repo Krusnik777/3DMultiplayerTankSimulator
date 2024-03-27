@@ -3,9 +3,8 @@ using UnityEngine;
 namespace MultiplayerTanks
 {
     [RequireComponent(typeof(TrackTank))]
-    public class TankTurret : MonoBehaviour
+    public class TankTurret : Turret
     {
-        [SerializeField] private Transform m_aim;
         [SerializeField] private Transform m_tower;
         [SerializeField] private Transform m_mask;
         [SerializeField] private float m_horizontalRotatationSpeed;
@@ -22,31 +21,39 @@ namespace MultiplayerTanks
 
         private float maskCurrentAngle;
 
-        public void Fire()
+        protected override void Start()
         {
-            FireSFX();
-        }
+            base.Start();
 
-        private void Start()
-        {
             m_tank = GetComponent<TrackTank>();
             m_tankRigidbody = m_tank.GetComponent<Rigidbody>();
 
             m_maxTopAngle = -m_maxTopAngle;
         }
 
-        private void Update()
+        protected override void Update()
         {
-            // TEMP
-            if (Input.GetMouseButtonDown(0)) Fire();
+            base.Update();
 
             ControlTurretAim();
+        }
+
+        protected override void OnFire()
+        {
+            base.OnFire();
+
+            var projectile = Instantiate(ActiveProjectile.gameObject);
+
+            projectile.transform.position = m_launchPoint.position;
+            projectile.transform.forward = m_launchPoint.forward;
+
+            FireSFX();
         }
 
         private void ControlTurretAim()
         {
             // Tower
-            Vector3 locPos = m_tower.InverseTransformPoint(m_aim.position);
+            Vector3 locPos = m_tower.InverseTransformPoint(m_tank.NetAimPoint);
             locPos.y = 0;
             Vector3 globPos = m_tower.TransformPoint(locPos);
 
@@ -55,7 +62,7 @@ namespace MultiplayerTanks
             // Mask
             m_mask.localRotation = Quaternion.identity;
 
-            locPos = m_mask.InverseTransformPoint(m_aim.position);
+            locPos = m_mask.InverseTransformPoint(m_tank.NetAimPoint);
             locPos.x = 0;
             globPos = m_mask.TransformPoint(locPos);
 

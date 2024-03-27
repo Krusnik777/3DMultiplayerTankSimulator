@@ -5,6 +5,8 @@ namespace MultiplayerTanks
     [RequireComponent(typeof(Camera))]
     public class VehicleCamera : MonoBehaviour
     {
+        public static VehicleCamera Instance;
+
         [SerializeField] private Vehicle m_vehicle;
         [SerializeField] private Vector3 m_offset;
         [Header("SensitiveLimit")]
@@ -38,8 +40,20 @@ namespace MultiplayerTanks
         private float defaultMaxVerticalAngle;
 
         private bool isZoomed;
+        public bool IsZoomed => isZoomed;
 
         public void SetTarget(Vehicle target) => m_vehicle = target;
+
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+        }
 
         private void Start()
         {
@@ -47,13 +61,12 @@ namespace MultiplayerTanks
             m_defaultFOV = m_camera.fieldOfView;
 
             defaultMaxVerticalAngle = m_maxVerticalAngle;
-
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
         }
 
         private void Update()
         {
+            if (m_vehicle == null) return;
+
             UpdateControls();
 
             m_distance = Mathf.Clamp(m_distance, m_minDistance, m_maxDistance);

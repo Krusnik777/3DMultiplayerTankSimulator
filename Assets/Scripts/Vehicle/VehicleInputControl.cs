@@ -1,14 +1,62 @@
+using NetworkSpaceShooter;
 using UnityEngine;
 
 namespace MultiplayerTanks
 {
+    [RequireComponent(typeof(Player))]
     public class VehicleInputControl : MonoBehaviour
     {
-        [SerializeField] private Vehicle m_vehicle;
+        public const float AimDistance = 1000;
+
+        private Player m_player;
+
+        public static Vector3 TraceAimPointWithoutPlayerVehicle(Vector3 start, Vector3 direction)
+        {
+            Ray ray = new Ray(start, direction);
+
+            RaycastHit[] hits = Physics.RaycastAll(ray, AimDistance);
+
+            var rigidbody = Player.Local.ActiveVehicle.GetComponent<Rigidbody>();
+
+            foreach(var hit in hits)
+            {
+                if (hit.rigidbody == rigidbody)
+                    continue;
+
+                return hit.point;
+            }
+
+            return ray.GetPoint(AimDistance);
+        }
+
+        private void Awake()
+        {
+            m_player = GetComponent<Player>();
+        }
 
         protected virtual void Update()
         {
-            m_vehicle.SetTargetControl(new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Jump"), Input.GetAxis("Vertical")));
+            if (m_player == null) return;
+
+            if (m_player.ActiveVehicle == null) return;
+
+            if (m_player.isOwned && m_player.isLocalPlayer)
+            {
+                m_player.ActiveVehicle.SetTargetControl(new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Jump"), Input.GetAxis("Vertical")));
+                m_player.NetAimPoint = TraceAimPointWithoutPlayerVehicle(VehicleCamera.Instance.transform.position, VehicleCamera.Instance.transform.forward);
+
+                if (Input.GetMouseButtonDown(0)) m_player.ActiveVehicle.Fire();
+
+                if (Input.GetKeyDown(KeyCode.Alpha1))
+                {
+                    m_player.ActiveVehicle.ChangeProjectile(0);
+                }
+
+                if (Input.GetKeyDown(KeyCode.Alpha2))
+                {
+                    m_player.ActiveVehicle.ChangeProjectile(1);
+                }
+            }
         }
     }
 }

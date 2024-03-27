@@ -1,8 +1,9 @@
 using UnityEngine;
+using Mirror;
 
 namespace MultiplayerTanks
 {
-    public class Vehicle : MonoBehaviour
+    public class Vehicle : Destructible
     {
         [SerializeField] protected float m_maxLinearSpeed;
         [Header("EngineSound")]
@@ -10,7 +11,10 @@ namespace MultiplayerTanks
         [SerializeField] private float m_enginePitchModifier;
         [Header("ZoomOptics")]
         [SerializeField] protected Transform m_zoomOpticsPosition;
+        [Header("Turret")]
+        [SerializeField] protected Turret m_turret;
         public Transform ZoomOpticsPosition => m_zoomOpticsPosition;
+        public Turret Turret => m_turret;
 
         protected Vector3 targetInputControl;
 
@@ -28,6 +32,16 @@ namespace MultiplayerTanks
 
         public void SetTargetControl(Vector3 control) => targetInputControl = control.normalized;
 
+        public void SetVisible(bool visible)
+        {
+            if (visible) SetLayerToAll("Default");
+            else SetLayerToAll("IgnoreMainCamera");
+        }
+
+        public void Fire() => m_turret.Fire();
+
+        public void ChangeProjectile(int index) => m_turret.ChangeProjectile(index);
+
         protected virtual void Update()
         {
             UpdateEngineSFX();
@@ -41,6 +55,26 @@ namespace MultiplayerTanks
                 m_engineSound.volume = 0.5f + NormalizedLinearVelocity;
             }
         }
+
+        private void SetLayerToAll(string layerName)
+        {
+            gameObject.layer = LayerMask.NameToLayer(layerName);
+
+            foreach(var t in transform.GetComponentsInChildren<Transform>())
+            {
+                t.gameObject.layer = LayerMask.NameToLayer(layerName);
+            }
+        }
+
+        #region NetAim
+
+        private Vector3 aim;
+
+        public Vector3 NetAimPoint => aim;
+
+        public void SetNetAim(Vector3 v) => aim = v;
+
+        #endregion
 
     }
 }

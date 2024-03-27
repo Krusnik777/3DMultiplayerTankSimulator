@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 namespace MultiplayerTanks
 {
@@ -84,12 +85,31 @@ namespace MultiplayerTanks
                 m_meshes[i].Rotate(angle, 0, 0);
             }
         }
+
+        public void UpdateMeshRotationByRpm(float rpm)
+        {
+            float angle = rpm * 360.0f / 60.0f * Time.fixedDeltaTime;
+
+            for (int i = 0; i < m_meshes.Length; i++)
+            {
+                Vector3 position;
+                Quaternion rotation;
+
+                m_colliders[i].GetWorldPose(out position, out rotation);
+
+                m_meshes[i].position = position;
+                m_meshes[i].Rotate(angle, 0, 0);
+            }
+        }
     }
 
     [RequireComponent(typeof(Rigidbody))]
     public class TrackTank : Vehicle
     {
-        
+        [Header("VisualModel")]
+        [SerializeField] private GameObject m_visualModel;
+        [SerializeField] private GameObject m_destroyedPrefab;
+        [Header("CenterOfMass")]
         [SerializeField] private Transform m_centerOfMass;
         [Header("Tracks")]
         [SerializeField] private TrackWheelRow m_leftWheelRow;
@@ -128,6 +148,25 @@ namespace MultiplayerTanks
         }
 
         private void FixedUpdate()
+        {
+            if (isOwned)
+            {
+                UpdateMotorTorque();
+
+                CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
+            } 
+        }
+
+        protected override void OnDestructibleDestroy()
+        {
+            base.OnDestructibleDestroy();
+
+            var destroyedModel = Instantiate(m_destroyedPrefab);
+            destroyedModel.transform.position = m_visualModel.transform.position;
+            destroyedModel.transform.rotation = m_visualModel.transform.rotation;
+        }
+
+        private void UpdateMotorTorque()
         {
             float targetMotorTorque = (targetInputControl.z > 0 ? m_maxForwardTorque : m_maxBackwardTorque) * Mathf.RoundToInt(targetInputControl.z);
             float targetBrakeTorque = m_brakeTorque * targetInputControl.y;
@@ -231,6 +270,28 @@ namespace MultiplayerTanks
 
             m_leftWheelRow.UpdateMeshTransform();
             m_rightWheelRow.UpdateMeshTransform();
+        }
+
+        [Command]
+        private void CmdUpdateWheelRpm(float leftRpm, float rightRpm)
+        {
+            SvUpdateWheelRpm(leftRpm,rightRpm);
+        }
+
+        [Server]
+        private void SvUpdateWheelRpm(float leftRpm, float rightRpm)
+        {
+            RpcUpdateWheelRpm(leftRpm, rightRpm);
+        }
+
+        [ClientRpc(includeOwner = false)]
+        private void RpcUpdateWheelRpm(float leftRpm, float rightRpm)
+        {
+            m_leftWheelRow.MinRpm = leftRpm;
+            m_rightWheelRow.MinRpm = rightRpm;
+
+            m_leftWheelRow.UpdateMeshRotationByRpm(leftRpm);
+            m_rightWheelRow.UpdateMeshRotationByRpm(rightRpm);
         }
 
     }
