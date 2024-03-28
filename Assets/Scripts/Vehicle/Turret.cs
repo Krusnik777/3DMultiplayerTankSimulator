@@ -42,8 +42,10 @@ namespace MultiplayerTanks
         private float fireTimer;
         public float FireTimerNormalized => fireTimer / m_fireRate;
 
-        protected virtual void Start()
+        public void InitializeTurret()
         {
+            if (currentAmmoForProjectiles != null) return;
+
             activeProjectileIndex = 0;
             m_ammoCount = m_projectiles[activeProjectileIndex].Ammo;
 
@@ -53,6 +55,11 @@ namespace MultiplayerTanks
             {
                 currentAmmoForProjectiles[i] = m_projectiles[i].Ammo;
             }
+        }
+
+        protected virtual void Start()
+        {
+            InitializeTurret();
         }
 
         protected virtual void Update()
@@ -85,13 +92,13 @@ namespace MultiplayerTanks
             activeProjectileIndex = index;
             m_ammoCount = currentAmmoForProjectiles[activeProjectileIndex];
 
-            RpcProjectileChanged();
+            RpcProjectileChanged(activeProjectileIndex, m_ammoCount);
         }
 
         [ClientRpc]
-        private void RpcProjectileChanged()
+        private void RpcProjectileChanged(int index, int ammo)
         {
-            ProjectileChanged?.Invoke(activeProjectileIndex, m_ammoCount);
+            ProjectileChanged?.Invoke(index, ammo);
         }
 
         #endregion
@@ -102,7 +109,7 @@ namespace MultiplayerTanks
         public void SvAddAmmo(int count)
         {
             m_ammoCount += count;
-            RpcAmmoChanged();
+            RpcAmmoChanged(m_ammoCount);
         }
 
         [Server]
@@ -114,7 +121,7 @@ namespace MultiplayerTanks
             {
                 m_ammoCount -= count;
 
-                RpcAmmoChanged();
+                RpcAmmoChanged(m_ammoCount);
                 return true;
             }
 
@@ -122,9 +129,9 @@ namespace MultiplayerTanks
         }
 
         [ClientRpc]
-        private void RpcAmmoChanged()
+        private void RpcAmmoChanged(int ammo)
         {
-            AmmoChanged?.Invoke(m_ammoCount);
+            AmmoChanged?.Invoke(ammo);
         }
 
         #endregion

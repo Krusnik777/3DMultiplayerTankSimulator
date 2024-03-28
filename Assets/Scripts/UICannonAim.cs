@@ -73,7 +73,7 @@ namespace MultiplayerTanks
             {
                 m_reloadSlider.fillAmount = m_turret.FireTimerNormalized;
 
-                yield return new WaitForFixedUpdate();
+                yield return new WaitForSeconds(0.1f);
             }
 
             m_reloadSlider.fillAmount = 0;

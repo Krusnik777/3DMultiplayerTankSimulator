@@ -33,11 +33,13 @@ namespace MultiplayerTanks
         {
             m_turret = vehicle.Turret;
 
-            m_turret.AmmoChanged += OnAmmoChanged;
-            m_turret.ProjectileChanged += OnProjectileChanged;
+            m_turret.InitializeTurret(); // if UI worked before Start() of Turret
 
             m_text.text = m_turret.AmmoCount.ToString();
             m_projectileIcon.sprite = m_projectilesSprites[m_turret.ActiveProjectileIndex];
+
+            m_turret.AmmoChanged += OnAmmoChanged;
+            m_turret.ProjectileChanged += OnProjectileChanged;
         }
 
         private void OnAmmoChanged(int ammo)

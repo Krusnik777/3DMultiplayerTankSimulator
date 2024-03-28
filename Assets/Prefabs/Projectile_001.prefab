@@ -49,11 +49,11 @@ MonoBehaviour:
   m_visualModel: {fileID: 2108872608040979415}
   m_velocity: 750
   m_lifeTime: 20
-  m_mass: 0.5
+  m_mass: 0.3
   m_damage: 80
   m_damageScatter: 0.2
   m_impactForce: 50000
-  m_spreadRadius: 0.2
+  m_spreadRadius: 0.3
 --- !u!96 &2303098789236881448
 TrailRenderer:
   serializedVersion: 3

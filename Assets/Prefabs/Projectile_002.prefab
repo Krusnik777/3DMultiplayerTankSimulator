@@ -49,7 +49,7 @@ MonoBehaviour:
   m_visualModel: {fileID: 2108872608040979415}
   m_velocity: 350
   m_lifeTime: 20
-  m_mass: 0.75
+  m_mass: 0.6
   m_damage: 120
   m_damageScatter: 0.2
   m_impactForce: 75000

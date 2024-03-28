@@ -28,8 +28,8 @@ namespace MultiplayerTanks
         {
             m_destructible = vehicle;
 
-            m_destructible.HitPointsChange += OnHitPointsChange;
             m_text.text = m_destructible.HitPoints.ToString();
+            m_destructible.HitPointsChange += OnHitPointsChange;
         }
 
         private void OnHitPointsChange(int amount)

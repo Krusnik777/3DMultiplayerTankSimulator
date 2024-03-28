@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Mirror;
+using NetworkSpaceShooter;
 
 namespace MultiplayerTanks
 {
@@ -66,8 +67,10 @@ namespace MultiplayerTanks
                     {
                         if (p.ActiveVehicle != null)
                         {
-                            NetworkServer.UnSpawn(p.ActiveVehicle.gameObject);
-                            Destroy(p.ActiveVehicle.gameObject);
+                            var vehicle = p.ActiveVehicle;
+
+                            NetworkServer.UnSpawn(vehicle.gameObject);
+                            Destroy(vehicle.gameObject);
 
                             p.ActiveVehicle = null;
                         }
