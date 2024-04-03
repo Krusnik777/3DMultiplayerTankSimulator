@@ -1,23 +1,57 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Mirror;
-using NetworkSpaceShooter;
 
 namespace MultiplayerTanks
 {
+    [System.Serializable]
+    public class PlayerData
+    {
+        public int Id;
+        public string Nickname;
+        public int TeamId;
+
+        public PlayerData(int id, string nickname, int teamId)
+        {
+            Id = id;
+            Nickname = nickname;
+            TeamId = teamId;
+        }
+    }
+
+    public static class PlayerDataWriteRead
+    {
+        public static void WritePlayerData(this NetworkWriter writer, PlayerData data)
+        {
+            writer.WriteInt(data.Id);
+            writer.WriteString(data.Nickname);
+            writer.WriteInt(data.TeamId);
+        }
+
+        public static PlayerData ReadPlayerData(this NetworkReader reader)
+        {
+            return new PlayerData(reader.ReadInt(), reader.ReadString(), reader.ReadInt());
+        }
+    }
+
     [RequireComponent(typeof(NetworkIdentity))]
     public class Player : NetworkBehaviour
     {
         [SerializeField] private Vehicle m_vehiclePrefab;
+        [SerializeField] private VehicleInputControl m_vehicleInputControl;
         [Header("Player")]
         [SyncVar(hook = nameof(OnNicknameChanged))]
         public string Nickname;
         [SyncVar]
         [SerializeField] private int m_teamId;
         public int TeamId => m_teamId;
+
         public UnityAction<Vehicle> VehicleSpawned;
 
         public Vehicle ActiveVehicle { get; set; }
+
+        private PlayerData m_playerData;
+        public PlayerData Data => m_playerData;
 
         public static Player Local
         {
@@ -39,6 +73,13 @@ namespace MultiplayerTanks
             TeamIdCounter++;
         }
 
+        public override void OnStopServer()
+        {
+            base.OnStopServer();
+
+            PlayerList.Instance.SvRemovePlayer(m_playerData);
+        }
+
         public override void OnStartClient()
         {
             base.OnStartClient();
@@ -46,6 +87,24 @@ namespace MultiplayerTanks
             if (isOwned)
             {
                 CmdSetName(NetworkSessionManager.Instance.GetComponent<NetworkManagerHUD>().PlayerNickname);
+
+                NetworkSessionManager.Match.MatchEnd += OnMatchEnd;
+
+                m_playerData = new PlayerData((int)netId, NetworkSessionManager.Instance.GetComponent<NetworkManagerHUD>().PlayerNickname, m_teamId);
+
+                CmdAddPlayer(m_playerData);
+
+                CmdUpdatePlayerData(m_playerData);
+            }
+        }
+
+        public override void OnStopClient()
+        {
+            base.OnStopClient();
+
+            if (isOwned)
+            {
+                NetworkSessionManager.Match.MatchEnd -= OnMatchEnd;
             }
         }
 
@@ -63,23 +122,7 @@ namespace MultiplayerTanks
             {
                 if (Input.GetKeyDown(KeyCode.F9))
                 {
-                    foreach(var p in FindObjectsOfType<Player>())
-                    {
-                        if (p.ActiveVehicle != null)
-                        {
-                            var vehicle = p.ActiveVehicle;
-
-                            NetworkServer.UnSpawn(vehicle.gameObject);
-                            Destroy(vehicle.gameObject);
-
-                            p.ActiveVehicle = null;
-                        }
-                    }
-
-                    foreach(var p in FindObjectsOfType<Player>())
-                    {
-                        p.SvSpawnClientVehicle();
-                    }
+                    NetworkSessionManager.Match.SvRestartMatch();
                 }
             }
 
@@ -115,11 +158,14 @@ namespace MultiplayerTanks
             if (vehicle == null) return;
 
             ActiveVehicle = vehicle.GetComponent<Vehicle>();
+            ActiveVehicle.Owner = netIdentity;
             
             if (ActiveVehicle != null && ActiveVehicle.isOwned && VehicleCamera.Instance != null)
             {
                 VehicleCamera.Instance.SetTarget(ActiveVehicle);
             }
+
+            m_vehicleInputControl.enabled = true;
 
             VehicleSpawned?.Invoke(ActiveVehicle);
         }
@@ -152,44 +198,54 @@ namespace MultiplayerTanks
 
         #endregion
 
-        #region SetAim
+        #region PlayerList
 
-        [SyncVar]
-        private Vector3 netAimPoint;
-
-        public Vector3 NetAimPoint
+        [Command]
+        private void CmdAddPlayer(PlayerData data)
         {
-            get => netAimPoint;
-
-            set
-            {
-                netAimPoint = value; // Client
-                CmdSetNetAimPoint(value); // Server
-            }
+            PlayerList.Instance.SvAddPlayer(data);
         }
 
         [Command]
-        private void CmdSetNetAimPoint(Vector3 v)
+        private void CmdUpdatePlayerData(PlayerData data)
         {
-            SvSetNetAimPoint(v);
-        }
-
-        [Server]
-        private void SvSetNetAimPoint(Vector3 v)
-        {
-            netAimPoint = v;
-            ActiveVehicle.SetNetAim(netAimPoint);
-            RpcSetNetAimPoint(v);
-        }
-
-        [ClientRpc]
-        private void RpcSetNetAimPoint(Vector3 v)
-        {
-            netAimPoint = v;
-            ActiveVehicle.SetNetAim(netAimPoint);
+            m_playerData = data;
         }
 
         #endregion
 
+        #region Frags
+
+        public static UnityAction<int, int> ChangeFrags;
+
+        [SyncVar(hook = nameof(OnFragsChanged))]
+        private int m_frags;
+        public int Frags
+        {
+            get => m_frags;
+            set
+            {
+                m_frags = value;
+                // Server
+                ChangeFrags?.Invoke((int)netId, m_frags);
+            }
+        }
+
+        // Client
+        private void OnFragsChanged(int oldValue, int newValue)
+        {
+            ChangeFrags?.Invoke((int)netId,newValue);
+        }
+
+        #endregion
+
+        private void OnMatchEnd()
+        {
+            if (ActiveVehicle != null)
+            {
+                ActiveVehicle.SetTargetControl(Vector3.zero);
+                m_vehicleInputControl.enabled = false;
+            }
+        }
     }
 }

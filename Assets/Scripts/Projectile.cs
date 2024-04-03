@@ -1,4 +1,5 @@
 using UnityEngine;
+using Mirror;
 
 namespace MultiplayerTanks
 {
@@ -15,6 +16,8 @@ namespace MultiplayerTanks
         [SerializeField] private float m_spreadRadius = 0.2f;
 
         private const float RayAdvance = 1.1f;
+
+        public NetworkIdentity Owner { get; set; } // Player
 
         private Vector2 spread;
 
@@ -56,6 +59,16 @@ namespace MultiplayerTanks
                         float damage = m_damage + Random.Range(-m_damageScatter, m_damageScatter) * m_damageScatter;
 
                         destructible.SvApplyDamage((int)damage);
+
+                        if (destructible.HitPoints <= 0)
+                        {
+                            if (Owner != null)
+                            {
+                                var player = Owner.GetComponent<Player>();
+
+                                if (player != null) player.Frags++;
+                            }
+                        }
                     }
                 }
 

@@ -21,7 +21,7 @@ namespace MultiplayerTanks
             NetworkSessionManager.Events.PlayerVehicleSpawned += OnPlayerVehicleSpawned;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             if (NetworkSessionManager.Instance != null)
                 NetworkSessionManager.Events.PlayerVehicleSpawned -= OnPlayerVehicleSpawned;
@@ -48,7 +48,7 @@ namespace MultiplayerTanks
 
         private void Update()
         {
-            if (m_turret == null) return;
+            if (m_turret == null || Player.Local == null || Player.Local.ActiveVehicle == null) return;
 
             aimPosition = VehicleInputControl.TraceAimPointWithoutPlayerVehicle(m_turret.LaunchPoint.position, m_turret.LaunchPoint.forward);
 

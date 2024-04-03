@@ -1,4 +1,3 @@
-using NetworkSpaceShooter;
 using UnityEngine;
 
 namespace MultiplayerTanks
@@ -43,7 +42,7 @@ namespace MultiplayerTanks
             if (m_player.isOwned && m_player.isLocalPlayer)
             {
                 m_player.ActiveVehicle.SetTargetControl(new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Jump"), Input.GetAxis("Vertical")));
-                m_player.NetAimPoint = TraceAimPointWithoutPlayerVehicle(VehicleCamera.Instance.transform.position, VehicleCamera.Instance.transform.forward);
+                m_player.ActiveVehicle.NetAimPoint = TraceAimPointWithoutPlayerVehicle(VehicleCamera.Instance.transform.position, VehicleCamera.Instance.transform.forward);
 
                 if (Input.GetMouseButtonDown(0)) m_player.ActiveVehicle.Fire();
 

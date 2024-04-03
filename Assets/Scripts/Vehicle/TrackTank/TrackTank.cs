@@ -153,8 +153,10 @@ namespace MultiplayerTanks
             {
                 UpdateMotorTorque();
 
-                CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
-            } 
+                //CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
+
+                //m_commandMediator.CmdUpdateWheelRpm(this, LeftWheelRpm, RightWheelRpm);
+            }
         }
 
         protected override void OnDestructibleDestroy()
@@ -272,8 +274,12 @@ namespace MultiplayerTanks
             m_rightWheelRow.UpdateMeshTransform();
         }
 
+        #region UpdateMeshesForServer
+
+        private CommandMediator m_commandMediator = new CommandMediator();
+
         [Command]
-        private void CmdUpdateWheelRpm(float leftRpm, float rightRpm)
+        public void CmdUpdateWheelRpm(float leftRpm, float rightRpm)
         {
             SvUpdateWheelRpm(leftRpm,rightRpm);
         }
@@ -293,6 +299,8 @@ namespace MultiplayerTanks
             m_leftWheelRow.UpdateMeshRotationByRpm(leftRpm);
             m_rightWheelRow.UpdateMeshRotationByRpm(rightRpm);
         }
+
+        #endregion
 
     }
 }

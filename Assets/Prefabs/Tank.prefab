@@ -963,7 +963,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.1
   m_maxHitPoints: 480
   m_destroySfx: {fileID: 0}
   m_onDestroyed:
@@ -1188,7 +1188,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.1
   m_projectiles:
   - Projectile: {fileID: 4850285818550698712, guid: bb2e675bd6e229a449b2f9c8f7135954, type: 3}
     Ammo: 13

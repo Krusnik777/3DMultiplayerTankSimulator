@@ -5,6 +5,7 @@ namespace MultiplayerTanks
 {
     public class NetworkSessionManager : NetworkManager
     {
+        [SerializeField] private MatchController m_matchController;
         [SerializeField] private GameEventCollector m_gameEventCollector;
         [SerializeField] private SphereArea[] m_spawnZonesRed;
         [SerializeField] private SphereArea[] m_spawnZonesBlue;
@@ -13,7 +14,8 @@ namespace MultiplayerTanks
         public Vector3 RandomSpawnPointBlue => m_spawnZonesBlue[Random.Range(0, m_spawnZonesBlue.Length)].RandomInside;
 
         public static NetworkSessionManager Instance => singleton as NetworkSessionManager;
-        public static GameEventCollector Events => Instance.m_gameEventCollector;
+        public static GameEventCollector Events => Instance?.m_gameEventCollector;
+        public static MatchController Match => Instance?.m_matchController;
 
         public bool IsServer => mode == NetworkManagerMode.Host || mode == NetworkManagerMode.ServerOnly;
         public bool IsClient => mode == NetworkManagerMode.Host || mode == NetworkManagerMode.ClientOnly;

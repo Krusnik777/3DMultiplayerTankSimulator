@@ -1,5 +1,5 @@
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace MultiplayerTanks
 {
@@ -68,11 +68,27 @@ namespace MultiplayerTanks
 
         #region NetAim
 
-        private Vector3 aim;
+        [SyncVar]
+        private Vector3 netAimPoint;
 
-        public Vector3 NetAimPoint => aim;
+        private CommandMediator m_commandMediator = new CommandMediator();
 
-        public void SetNetAim(Vector3 v) => aim = v;
+        public Vector3 NetAimPoint
+        {
+            get => netAimPoint;
+
+            set
+            {
+                netAimPoint = value; // Client
+                m_commandMediator.CmdSetNetAim(this,value);
+            }
+        }
+
+        [Command]
+        public void CmdSetNetAimPoint(Vector3 v)
+        {
+            netAimPoint = v;
+        }
 
         #endregion
 

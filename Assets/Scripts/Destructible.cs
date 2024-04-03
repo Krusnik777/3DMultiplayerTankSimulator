@@ -9,7 +9,8 @@ namespace MultiplayerTanks
     {
         [SerializeField] private int m_maxHitPoints;
         [SerializeField] private GameObject m_destroySfx;
-        [SerializeField] private UnityEvent m_onDestroyed;
+        [SerializeField] private UnityEvent<Destructible> m_onDestroyed;
+        public UnityEvent<Destructible> OnEventDeath => m_onDestroyed;
 
         [SyncVar(hook = nameof(T))]
         public NetworkIdentity Owner;
@@ -59,7 +60,7 @@ namespace MultiplayerTanks
 
         protected virtual void OnDestructibleDestroy()
         {
-            m_onDestroyed?.Invoke();
+            m_onDestroyed?.Invoke(this);
         }
 
         private void ChangeHitPoints(int oldValue, int newValue)

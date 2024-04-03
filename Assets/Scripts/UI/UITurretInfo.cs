@@ -1,4 +1,3 @@
-using NetworkSpaceShooter;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +16,7 @@ namespace MultiplayerTanks
             NetworkSessionManager.Events.PlayerVehicleSpawned += OnPlayerVehicleSpawned;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             if (NetworkSessionManager.Instance != null)
                 NetworkSessionManager.Events.PlayerVehicleSpawned -= OnPlayerVehicleSpawned;

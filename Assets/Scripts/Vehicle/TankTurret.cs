@@ -47,6 +47,8 @@ namespace MultiplayerTanks
             projectile.transform.position = m_launchPoint.position;
             projectile.transform.forward = m_launchPoint.forward;
 
+            projectile.GetComponent<Projectile>().Owner = m_tank.Owner;
+
             FireSFX();
         }
 
