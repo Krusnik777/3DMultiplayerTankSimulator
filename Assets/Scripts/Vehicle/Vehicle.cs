@@ -20,6 +20,8 @@ namespace MultiplayerTanks
 
         public virtual float LinearVelocity => 0;
 
+        public bool isStopped { get; set; }
+
         public float NormalizedLinearVelocity
         {
             get

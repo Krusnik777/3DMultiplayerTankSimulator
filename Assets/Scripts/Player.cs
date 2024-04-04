@@ -245,6 +245,7 @@ namespace MultiplayerTanks
             {
                 ActiveVehicle.SetTargetControl(Vector3.zero);
                 m_vehicleInputControl.enabled = false;
+                ActiveVehicle.isStopped = true;
             }
         }
     }

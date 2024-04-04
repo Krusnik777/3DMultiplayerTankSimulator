@@ -35,7 +35,7 @@ namespace MultiplayerTanks
             {
                 if (m_tanksInfo[i] == null || m_playersWithoutLocal[i].ActiveVehicle == null) continue;
 
-                Vector3 screenPos = Camera.main.WorldToScreenPoint(m_tanksInfo[i].Tank.transform.position + m_tanksInfo[i].WorldOffset);
+                Vector3 screenPos = Camera.main.WorldToScreenPoint(m_tanksInfo[i].Tank.transform.position + (VehicleCamera.Instance.IsZoomed ? m_tanksInfo[i].WorldZoomOffset : m_tanksInfo[i].WorldOffset));
 
                 if (screenPos.z > 0)
                 {

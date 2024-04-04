@@ -12,6 +12,8 @@ namespace MultiplayerTanks
         [SerializeField] private Color m_localTeamColor;
         [SerializeField] private Color m_otherTeamColor;
 
+        public Color ActiveColor => m_sliderImage.color;
+
         private Destructible m_destructible;
 
         public void Init(Destructible destructible, int destructibleTeamId, int localPlayerTeamId)

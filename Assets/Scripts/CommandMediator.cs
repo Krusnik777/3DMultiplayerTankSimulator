@@ -12,12 +12,5 @@ namespace MultiplayerTanks
         {
             vehicle.CmdSetNetAimPoint(aim);
         }
-
-        [Command]
-        public void CmdUpdateWheelRpm(TrackTank trackTank, float leftRpm, float rightRpm)
-        {
-            if (trackTank.isOwned) trackTank.CmdUpdateWheelRpm(leftRpm, rightRpm);
-        }
-
     }
 }

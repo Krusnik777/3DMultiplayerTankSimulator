@@ -153,9 +153,7 @@ namespace MultiplayerTanks
             {
                 UpdateMotorTorque();
 
-                //CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
-
-                //m_commandMediator.CmdUpdateWheelRpm(this, LeftWheelRpm, RightWheelRpm);
+                if (!isStopped) CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
             }
         }
 
@@ -276,10 +274,8 @@ namespace MultiplayerTanks
 
         #region UpdateMeshesForServer
 
-        private CommandMediator m_commandMediator = new CommandMediator();
-
         [Command]
-        public void CmdUpdateWheelRpm(float leftRpm, float rightRpm)
+        private void CmdUpdateWheelRpm(float leftRpm, float rightRpm)
         {
             SvUpdateWheelRpm(leftRpm,rightRpm);
         }
