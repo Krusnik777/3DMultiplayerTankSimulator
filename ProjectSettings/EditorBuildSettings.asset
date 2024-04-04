@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Map.unity
-    guid: 4216b7089dd593b438994c739e9bb18a
+    path: Assets/Scenes/Test_Tank.unity
+    guid: cc7e329fc45e5fc45a672370f1aedaed
   m_configObjects: {}
