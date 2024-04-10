@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8599464091214414479}
   - component: {fileID: 4850285818550698712}
-  - component: {fileID: 2303098789236881448}
+  - component: {fileID: 243440311164401708}
+  - component: {fileID: 433534063782168133}
   m_Layer: 0
   m_Name: Projectile_001
   m_TagString: Untagged
@@ -32,6 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8842507106350073086}
+  - {fileID: 2126447679689281875}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4850285818550698712
@@ -46,22 +48,76 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 276dfa6011cf20649aafa93782c1e198, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_properties: {fileID: 11400000, guid: 7e09588a140fa834880acf7253d92214, type: 2}
+  m_movement: {fileID: 243440311164401708}
+  m_hit: {fileID: 433534063782168133}
   m_visualModel: {fileID: 2108872608040979415}
-  m_velocity: 750
+  m_delayBeforeDestroy: 1
   m_lifeTime: 20
-  m_mass: 0.3
-  m_damage: 80
-  m_damageScatter: 0.2
-  m_impactForce: 50000
-  m_spreadRadius: 0.3
---- !u!96 &2303098789236881448
+--- !u!114 &243440311164401708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 301390544635593235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab771d3c949c7a344a87ceb6c39dbdf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &433534063782168133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 301390544635593235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd1b7fab48b741943a03be97c188660f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1460170326992383818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2126447679689281875}
+  - component: {fileID: 7302712454496276881}
+  m_Layer: 0
+  m_Name: Trail
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2126447679689281875
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1460170326992383818}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8599464091214414479}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!96 &7302712454496276881
 TrailRenderer:
   serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 301390544635593235}
+  m_GameObject: {fileID: 1460170326992383818}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1

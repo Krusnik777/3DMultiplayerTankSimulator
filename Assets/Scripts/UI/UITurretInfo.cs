@@ -24,7 +24,6 @@ namespace MultiplayerTanks
             if (m_turret != null)
             {
                 m_turret.AmmoChanged -= OnAmmoChanged;
-                m_turret.ProjectileChanged -= OnProjectileChanged;
             }
         }
 
@@ -32,24 +31,15 @@ namespace MultiplayerTanks
         {
             m_turret = vehicle.Turret;
 
-            m_turret.InitializeTurret(); // if UI worked before Start() of Turret
-
             m_text.text = m_turret.AmmoCount.ToString();
-            m_projectileIcon.sprite = m_projectilesSprites[m_turret.ActiveProjectileIndex];
+            m_projectileIcon.sprite = m_projectilesSprites[0];
 
             m_turret.AmmoChanged += OnAmmoChanged;
-            m_turret.ProjectileChanged += OnProjectileChanged;
         }
 
         private void OnAmmoChanged(int ammo)
         {
             m_text.text = ammo.ToString();
-        }
-
-        private void OnProjectileChanged(int index, int ammo)
-        {
-            m_text.text = ammo.ToString();
-            m_projectileIcon.sprite = m_projectilesSprites[index];
         }
     }
 }

@@ -20,7 +20,7 @@ namespace MultiplayerTanks
 
         public virtual float LinearVelocity => 0;
 
-        public bool isStopped { get; set; }
+        public bool IsStopped { get; set; }
 
         public float NormalizedLinearVelocity
         {
@@ -41,8 +41,6 @@ namespace MultiplayerTanks
         }
 
         public void Fire() => m_turret.Fire();
-
-        public void ChangeProjectile(int index) => m_turret.ChangeProjectile(index);
 
         protected virtual void Update()
         {
@@ -93,6 +91,11 @@ namespace MultiplayerTanks
         }
 
         #endregion
+
+        [SyncVar(hook = nameof(T))]
+        public NetworkIdentity Owner;
+
+        private void T(NetworkIdentity oldValue, NetworkIdentity newValue) { }
 
     }
 }

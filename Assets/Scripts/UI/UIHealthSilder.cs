@@ -1,5 +1,3 @@
-using Mirror.Examples.Tanks;
-using NetworkSpaceShooter;
 using UnityEngine;
 using UnityEngine.UI;
 

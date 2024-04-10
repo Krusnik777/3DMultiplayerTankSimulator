@@ -8,22 +8,22 @@ namespace MultiplayerTanks
     public class Destructible : NetworkBehaviour
     {
         [SerializeField] private int m_maxHitPoints;
-        [SerializeField] private GameObject m_destroySfx;
-        [SerializeField] private UnityEvent<Destructible> m_onDestroyed;
-        public UnityEvent<Destructible> OnEventDeath => m_onDestroyed;
+        [SerializeField] private UnityEvent m_eventDestroyed;
+        [SerializeField] private UnityEvent m_eventRecovered;
 
-        [SyncVar(hook = nameof(T))]
-        public NetworkIdentity Owner;
+        [SerializeField] private int currentHitPoints; // Serialize For Debug
 
-        [SyncVar(hook = nameof(ChangeHitPoints))]
+        [SyncVar(hook = nameof(SyncHitPoints))]
         private int syncCurrentHitPoints;
 
         public int MaxHitPoints => m_maxHitPoints;
-
-        private int currentHitPoints;
         public int HitPoints => currentHitPoints;
 
-        public UnityAction<int> HitPointsChange;
+        public event UnityAction<int> HitPointsChange;
+        public event UnityAction<Destructible> Destroyed;
+        public event UnityAction<Destructible> Recovered;
+
+        #region Server
 
         public override void OnStartServer()
         {
@@ -40,36 +40,46 @@ namespace MultiplayerTanks
 
             if (syncCurrentHitPoints <= 0)
             {
-                if (m_destroySfx != null)
-                {
-                    var sfx = Instantiate(m_destroySfx, transform.position, Quaternion.identity);
-                    NetworkServer.Spawn(sfx);
-                }
-
                 syncCurrentHitPoints = 0;
 
                 RpcDestroy();
             }
         }
 
+        [Server]
+        protected void SvRecovery()
+        {
+            syncCurrentHitPoints = m_maxHitPoints;
+            currentHitPoints = m_maxHitPoints;
+
+            RpcRecovery();
+        }
+
+        #endregion
+
+        #region Client
+
         [ClientRpc]
         private void RpcDestroy()
         {
-            OnDestructibleDestroy();
+            Destroyed?.Invoke(this);
+            m_eventDestroyed?.Invoke();
         }
 
-        protected virtual void OnDestructibleDestroy()
+        [ClientRpc]
+        private void RpcRecovery()
         {
-            m_onDestroyed?.Invoke(this);
+            Recovered?.Invoke(this);
+            m_eventRecovered?.Invoke();
         }
 
-        private void ChangeHitPoints(int oldValue, int newValue)
+        private void SyncHitPoints(int oldValue, int newValue)
         {
             currentHitPoints = newValue;
 
             HitPointsChange?.Invoke(newValue);
         }
 
-        private void T(NetworkIdentity oldValue, NetworkIdentity newValue) { }
+        #endregion
     }
 }

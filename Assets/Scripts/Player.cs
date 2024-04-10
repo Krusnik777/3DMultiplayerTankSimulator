@@ -46,7 +46,7 @@ namespace MultiplayerTanks
         [SerializeField] private int m_teamId;
         public int TeamId => m_teamId;
 
-        public UnityAction<Vehicle> VehicleSpawned;
+        public event UnityAction<Vehicle> VehicleSpawned;
 
         public Vehicle ActiveVehicle { get; set; }
 
@@ -245,7 +245,7 @@ namespace MultiplayerTanks
             {
                 ActiveVehicle.SetTargetControl(Vector3.zero);
                 m_vehicleInputControl.enabled = false;
-                ActiveVehicle.isStopped = true;
+                ActiveVehicle.IsStopped = true;
             }
         }
     }

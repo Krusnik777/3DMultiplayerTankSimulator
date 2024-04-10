@@ -10,7 +10,7 @@ namespace MultiplayerTanks
     {
 		public static PlayerList Instance;
 
-		public static UnityAction<List<PlayerData>> UpdatePlayerList;
+		public static event UnityAction<List<PlayerData>> UpdatePlayerList;
 
 		[SerializeField] private List<PlayerData> allPlayersData = new List<PlayerData>(); // Serialize for debug
 		public List<PlayerData> AllPlayersData => allPlayersData;

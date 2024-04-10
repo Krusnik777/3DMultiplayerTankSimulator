@@ -145,6 +145,13 @@ namespace MultiplayerTanks
         {
             m_rigidBody = GetComponent<Rigidbody>();
             m_rigidBody.centerOfMass = m_centerOfMass.localPosition;
+
+            Destroyed += OnDestroyed;
+        }
+
+        private void OnDestroy()
+        {
+            Destroyed -= OnDestroyed;
         }
 
         private void FixedUpdate()
@@ -153,17 +160,8 @@ namespace MultiplayerTanks
             {
                 UpdateMotorTorque();
 
-                if (!isStopped) CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
+                if (!IsStopped) CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
             }
-        }
-
-        protected override void OnDestructibleDestroy()
-        {
-            base.OnDestructibleDestroy();
-
-            var destroyedModel = Instantiate(m_destroyedPrefab);
-            destroyedModel.transform.position = m_visualModel.transform.position;
-            destroyedModel.transform.rotation = m_visualModel.transform.rotation;
         }
 
         private void UpdateMotorTorque()
@@ -270,6 +268,13 @@ namespace MultiplayerTanks
 
             m_leftWheelRow.UpdateMeshTransform();
             m_rightWheelRow.UpdateMeshTransform();
+        }
+
+        private void OnDestroyed(Destructible destuctible)
+        {
+            var destroyedModel = Instantiate(m_destroyedPrefab);
+            destroyedModel.transform.position = m_visualModel.transform.position;
+            destroyedModel.transform.rotation = m_visualModel.transform.rotation;
         }
 
         #region UpdateMeshesForServer

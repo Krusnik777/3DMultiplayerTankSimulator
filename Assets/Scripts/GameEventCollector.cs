@@ -7,7 +7,7 @@ namespace MultiplayerTanks
     [RequireComponent(typeof(NetworkIdentity))]
     public class GameEventCollector : NetworkBehaviour
     {
-        public UnityAction<Vehicle> PlayerVehicleSpawned;
+        public event UnityAction<Vehicle> PlayerVehicleSpawned;
 
         [Server]
         public void SvOnAddPlayer()

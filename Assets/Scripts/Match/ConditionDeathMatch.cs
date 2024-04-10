@@ -22,7 +22,7 @@ namespace MultiplayerTanks
             {
                 if (player.ActiveVehicle != null)
                 {
-                    player.ActiveVehicle.OnEventDeath.AddListener(OnEventDeathHandler);
+                    player.ActiveVehicle.Destroyed += OnVehicleDestroyed;
 
                     if (player.TeamId == TeamSide.TeamRed)
                         red++;
@@ -45,9 +45,13 @@ namespace MultiplayerTanks
             triggered = false;
         }
 
-        private void OnEventDeathHandler(Destructible destructible)
+        private void OnVehicleDestroyed(Destructible destructible)
         {
-            var ownerPlayer = destructible.Owner?.GetComponent<Player>();
+            Vehicle vehicle = destructible as Vehicle;
+
+            if (vehicle == null) return;
+
+            var ownerPlayer = vehicle.Owner?.GetComponent<Player>();
 
             if (ownerPlayer == null) return;
 

@@ -21,10 +21,8 @@ namespace MultiplayerTanks
 
         private float maskCurrentAngle;
 
-        protected override void Start()
+        private void Start()
         {
-            base.Start();
-
             m_tank = GetComponent<TrackTank>();
             m_tankRigidbody = m_tank.GetComponent<Rigidbody>();
 
@@ -42,12 +40,13 @@ namespace MultiplayerTanks
         {
             base.OnFire();
 
-            var projectile = Instantiate(ActiveProjectile.gameObject);
+            var projectile = Instantiate(m_projectileProperties.ProjectilePrefab);
 
             projectile.transform.position = m_launchPoint.position;
             projectile.transform.forward = m_launchPoint.forward;
 
-            projectile.GetComponent<Projectile>().Owner = m_tank.Owner;
+            projectile.Owner = m_tank.Owner;
+            projectile.SetProperties(m_projectileProperties);
 
             FireSFX();
         }

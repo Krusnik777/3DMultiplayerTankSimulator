@@ -46,6 +46,7 @@ namespace MultiplayerTanks
 
                 if (Input.GetMouseButtonDown(0)) m_player.ActiveVehicle.Fire();
 
+                /*
                 if (Input.GetKeyDown(KeyCode.Alpha1))
                 {
                     m_player.ActiveVehicle.ChangeProjectile(0);
@@ -54,7 +55,7 @@ namespace MultiplayerTanks
                 if (Input.GetKeyDown(KeyCode.Alpha2))
                 {
                     m_player.ActiveVehicle.ChangeProjectile(1);
-                }
+                }*/
             }
         }
     }
