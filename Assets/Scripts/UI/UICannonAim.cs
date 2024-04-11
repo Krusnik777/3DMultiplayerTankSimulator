@@ -14,8 +14,6 @@ namespace MultiplayerTanks
 
         private Turret m_turret;
 
-        private Coroutine reloadCouroutine;
-
         private void Start()
         {
             NetworkSessionManager.Events.PlayerVehicleSpawned += OnPlayerVehicleSpawned;
@@ -25,9 +23,6 @@ namespace MultiplayerTanks
         {
             if (NetworkSessionManager.Instance != null)
                 NetworkSessionManager.Events.PlayerVehicleSpawned -= OnPlayerVehicleSpawned;
-
-            if (m_turret != null)
-                m_turret.Fired -= OnFired;
         }
 
         private void OnPlayerVehicleSpawned(Vehicle vehicle)
@@ -36,14 +31,7 @@ namespace MultiplayerTanks
 
             m_reloadSlider.fillAmount = m_turret.FireTimerNormalized;
 
-            m_turret.Fired += OnFired;
-        }
-
-        private void OnFired()
-        {
-            if (reloadCouroutine != null) StopCoroutine(reloadCouroutine);
-
-            reloadCouroutine = StartCoroutine(UpdateReloadSlider());
+            StartCoroutine(UpdateReloadSlider());
         }
 
         private void Update()
@@ -65,20 +53,14 @@ namespace MultiplayerTanks
 
         private IEnumerator UpdateReloadSlider()
         {
-            yield return new WaitUntil(() => m_turret.FireTimerNormalized > 0);
-
-            m_reloadSlider.fillAmount = m_turret.FireTimerNormalized;
-
-            while (m_turret.FireTimerNormalized > 0.05f)
+            while (true)
             {
+                if (m_turret == null) break;
+
                 m_reloadSlider.fillAmount = m_turret.FireTimerNormalized;
 
                 yield return new WaitForSeconds(0.1f);
             }
-
-            m_reloadSlider.fillAmount = 0;
-
-            reloadCouroutine = null;
         }
 
     }

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf66cbfb385705d48b90b07aceb71d7e, type: 3}
+  m_Name: ArmorPierciong_Projectile_001
+  m_EditorClassIdentifier: 
+  m_type: 0
+  m_projectilePrefab: {fileID: 4850285818550698712, guid: bb2e675bd6e229a449b2f9c8f7135954, type: 3}
+  m_icon: {fileID: 21300000, guid: 89d45ec785b237942adb79a6d2c67296, type: 3}
+  m_velocity: 800
+  m_mass: 0.001
+  m_impactForce: 5000
+  m_damage: 50
+  m_damageSpread: 0.25
+  m_caliber: 85
+  m_armorPenetration: 50
+  m_armorPenetrationSpread: 0.25
+  m_normalizationAngle: 5
+  m_ricochetAngle: 60

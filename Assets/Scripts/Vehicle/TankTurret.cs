@@ -40,13 +40,13 @@ namespace MultiplayerTanks
         {
             base.OnFire();
 
-            var projectile = Instantiate(m_projectileProperties.ProjectilePrefab);
+            var projectile = Instantiate(SelectedProjectileProperties.ProjectilePrefab);
+
+            projectile.Owner = m_tank.Owner;
+            projectile.SetProperties(SelectedProjectileProperties);
 
             projectile.transform.position = m_launchPoint.position;
             projectile.transform.forward = m_launchPoint.forward;
-
-            projectile.Owner = m_tank.Owner;
-            projectile.SetProperties(m_projectileProperties);
 
             FireSFX();
         }

@@ -19,7 +19,7 @@ namespace MultiplayerTanks
 
             foreach(var hit in hits)
             {
-                if (hit.rigidbody == rigidbody)
+                if (hit.rigidbody == rigidbody || hit.collider.isTrigger)
                     continue;
 
                 return hit.point;
@@ -46,16 +46,21 @@ namespace MultiplayerTanks
 
                 if (Input.GetMouseButtonDown(0)) m_player.ActiveVehicle.Fire();
 
-                /*
+                
                 if (Input.GetKeyDown(KeyCode.Alpha1))
                 {
-                    m_player.ActiveVehicle.ChangeProjectile(0);
+                    m_player.ActiveVehicle.Turret.SetSelectedProjectile(0);
                 }
 
                 if (Input.GetKeyDown(KeyCode.Alpha2))
                 {
-                    m_player.ActiveVehicle.ChangeProjectile(1);
-                }*/
+                    m_player.ActiveVehicle.Turret.SetSelectedProjectile(1);
+                }
+
+                if (Input.GetKeyDown(KeyCode.Alpha3))
+                {
+                    m_player.ActiveVehicle.Turret.SetSelectedProjectile(2);
+                }
             }
         }
     }

@@ -146,6 +146,10 @@ namespace MultiplayerTanks
             m_rigidBody = GetComponent<Rigidbody>();
             m_rigidBody.centerOfMass = m_centerOfMass.localPosition;
 
+            // To Reset SideWayStiffness
+            m_leftWheelRow.SetSidewayStiffness(1.0f + m_minSidewayStiffnessInMotion - Mathf.Abs(1));
+            m_rightWheelRow.SetSidewayStiffness(1.0f + m_minSidewayStiffnessInMotion - Mathf.Abs(1));
+
             Destroyed += OnDestroyed;
         }
 

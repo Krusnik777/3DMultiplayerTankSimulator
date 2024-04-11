@@ -7,74 +7,50 @@ namespace MultiplayerTanks
     [RequireComponent(typeof(NetworkIdentity))]
     public class Turret : NetworkBehaviour
     {
-        [SerializeField] protected ProjectileProperties m_projectileProperties;
+        [SerializeField] protected Ammunition[] m_ammunition;
         [SerializeField] protected Transform m_launchPoint;
         [SerializeField] private float m_fireRate;
 
         [SyncVar]
-        [SerializeField] protected int m_ammoCount;
-        public int AmmoCount => m_ammoCount;
+        [SerializeField] private int syncSelectedAmmunitionIndex;
 
-        public event UnityAction<int> AmmoChanged;
-        
-        public event UnityAction Fired;
-
-        public ProjectileProperties ProjectileProperties => m_projectileProperties;
-
+        public Ammunition[] Ammunition => m_ammunition;
         public Transform LaunchPoint => m_launchPoint;
+        public int SelectedAmmunitionIndex => syncSelectedAmmunitionIndex;
 
+        public ProjectileProperties SelectedProjectileProperties => m_ammunition[syncSelectedAmmunitionIndex].ProjectileProperties;
+
+        [SyncVar]
         private float fireTimer;
         public float FireTimerNormalized => fireTimer / m_fireRate;
+
+        public event UnityAction<int> UpdateSelectedAmmunition;
+
+        public void SetSelectedProjectile(int index)
+        {
+            if (!isOwned) return;
+
+            if (index < 0 || index >= m_ammunition.Length || index == syncSelectedAmmunitionIndex) return;
+
+            CmdChangeProjectile(index);
+
+            if (isClient) CmdReloadAmmunition();
+
+            UpdateSelectedAmmunition?.Invoke(index);
+        }
+
+        [Command]
+        private void CmdChangeProjectile(int index)
+        {
+            syncSelectedAmmunitionIndex = index;
+        }
 
         protected virtual void Update()
         {
             if (fireTimer > 0) fireTimer -= Time.deltaTime;
         }
 
-        #region ProjectileChange
-
-
-        #endregion
-
-        #region Ammo
-
-        [Server]
-        public void SvAddAmmo(int count)
-        {
-            m_ammoCount += count;
-            RpcAmmoChanged(m_ammoCount);
-        }
-
-        [Server]
-        protected virtual bool SvDrawAmmo(int count)
-        {
-            if (m_ammoCount == 0) return false;
-
-            if (m_ammoCount >= count)
-            {
-                m_ammoCount -= count;
-
-                RpcAmmoChanged(m_ammoCount);
-                return true;
-            }
-
-            return false;
-        }
-
-        [ClientRpc]
-        private void RpcAmmoChanged(int ammo)
-        {
-            AmmoChanged?.Invoke(ammo);
-        }
-
-        #endregion
-
-        #region Fire
-
-        protected virtual void OnFire() 
-        {
-            Fired?.Invoke();
-        }
+        protected virtual void OnFire() { }
 
         public void Fire()
         {
@@ -84,11 +60,17 @@ namespace MultiplayerTanks
         }
 
         [Command]
+        private void CmdReloadAmmunition()
+        {
+            fireTimer = m_fireRate;
+        }
+
+        [Command]
         private void CmdFire()
         {
             if (fireTimer > 0) return;
 
-            if (!SvDrawAmmo(1)) return;
+            if (!m_ammunition[syncSelectedAmmunitionIndex].SvDrawAmmo(1)) return;
 
             OnFire();
 
@@ -107,6 +89,5 @@ namespace MultiplayerTanks
             OnFire();
         }
 
-        #endregion
     }
 }

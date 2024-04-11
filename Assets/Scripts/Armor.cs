@@ -19,6 +19,8 @@ namespace MultiplayerTanks
         public Destructible Destructible => m_destructible;
         public int Thickness => m_thickness;
 
+        public void SetDestructible(Destructible destructible) => m_destructible = destructible;
+
         private void Awake()
         {
             transform.SetParent(m_parent);

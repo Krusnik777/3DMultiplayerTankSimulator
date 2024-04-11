@@ -216,7 +216,7 @@ namespace MultiplayerTanks
 
         #region Frags
 
-        public static UnityAction<int, int> ChangeFrags;
+        public static event UnityAction<int, int> ChangeFrags;
 
         [SyncVar(hook = nameof(OnFragsChanged))]
         private int m_frags;
@@ -235,6 +235,31 @@ namespace MultiplayerTanks
         private void OnFragsChanged(int oldValue, int newValue)
         {
             ChangeFrags?.Invoke((int)netId,newValue);
+        }
+
+        #endregion
+
+        #region ProjectileHit
+
+        public event UnityAction<ProjectileHitResult> ProjectileHitted;
+
+        [Server]
+        public void SvInvokeProjectileHit(ProjectileHitResult hitResult)
+        {
+            ProjectileHitted?.Invoke(hitResult);
+
+            RpcInvokeProjectileHit(hitResult.type, hitResult.damage, hitResult.point);
+        }
+
+        [ClientRpc]
+        public void RpcInvokeProjectileHit(ProjectileHitType type, float damage, Vector3 hitPoint)
+        {
+            var hitResult = new ProjectileHitResult();
+            hitResult.type = type;
+            hitResult.damage = damage;
+            hitResult.point = hitPoint;
+
+            ProjectileHitted?.Invoke(hitResult);
         }
 
         #endregion

@@ -43,27 +43,31 @@ namespace MultiplayerTanks
 
             if (NetworkSessionManager.Instance.IsServer)
             {
-                if (m_hit.HittedDestuctible != null)
+                ProjectileHitResult hitResult = m_hit.GetHitResult();
+
+                if (hitResult.type == ProjectileHitType.Penetration || hitResult.type == ProjectileHitType.ModulePenetration || m_properties.Type == ProjectileType.HighExplosive && hitResult.type != ProjectileHitType.Environment)
                 {
-                    SvTakeDamage();
+                    SvTakeDamage(hitResult);
 
                     SvAddFrags();
                 }
+
+                Owner.GetComponent<Player>().SvInvokeProjectileHit(hitResult);
             }
 
             DestroyProjectile();
         }
 
-        private void SvTakeDamage()
+        private void SvTakeDamage(ProjectileHitResult hitResult)
         {
-            float damage = m_properties.GetSpreadDamage();
-
-            m_hit.HittedDestuctible.SvApplyDamage((int)damage);
+            m_hit.HittedArmor.Destructible.SvApplyDamage((int)hitResult.damage);
         }
 
         private void SvAddFrags()
         {
-            if (m_hit.HittedDestuctible.HitPoints <= 0)
+            if (m_hit.HittedArmor.Type == ArmorType.Module) return;
+
+            if (m_hit.HittedArmor.Destructible.HitPoints <= 0)
             {
                 if (Owner != null)
                 {
