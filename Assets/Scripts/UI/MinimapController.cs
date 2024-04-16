@@ -7,7 +7,7 @@ namespace MultiplayerTanks
         [SerializeField] private MinimapMark m_minimapMarkPrefab;
 
         private MinimapMark[] m_minimapMarks;
-        private Player[] m_players;
+        private Vehicle[] m_vehicles;
 
         private void Start()
         {
@@ -30,23 +30,32 @@ namespace MultiplayerTanks
 
             for (int i = 0; i < m_minimapMarks.Length; i++)
             {
-                if (m_players[i] == null) continue;
+                if (m_vehicles[i] == null) continue;
 
-                m_minimapMarks[i].transform.position = new Vector3(m_players[i].ActiveVehicle.transform.position.x,m_minimapMarks[i].transform.position.y, m_players[i].ActiveVehicle.transform.position.z);
+                if (m_vehicles[i] != Player.Local.ActiveVehicle)
+                {
+                    bool isVisible = Player.Local.ActiveVehicle.Viewer.IsVisible(m_vehicles[i].netIdentity);
+
+                    m_minimapMarks[i].gameObject.SetActive(isVisible);
+                }
+
+                if (!m_minimapMarks[i].gameObject.activeSelf) continue;
+
+                m_minimapMarks[i].transform.position = new Vector3(m_vehicles[i].transform.position.x,m_minimapMarks[i].transform.position.y, m_vehicles[i].transform.position.z);
             }
         }
 
         private void OnMatchStart()
         {
-            m_players = FindObjectsOfType<Player>();
+            m_vehicles = FindObjectsOfType<Vehicle>();
 
-            m_minimapMarks = new MinimapMark[m_players.Length];
+            m_minimapMarks = new MinimapMark[m_vehicles.Length];
 
             for (int i = 0; i < m_minimapMarks.Length; i++)
             {
                 m_minimapMarks[i] = Instantiate(m_minimapMarkPrefab);
 
-                if (m_players[i].TeamId == Player.Local.TeamId) m_minimapMarks[i].SetLocalColor();
+                if (m_vehicles[i].TeamId == Player.Local.TeamId) m_minimapMarks[i].SetLocalColor();
                 else m_minimapMarks[i].SetOtherColor();
             }
         }

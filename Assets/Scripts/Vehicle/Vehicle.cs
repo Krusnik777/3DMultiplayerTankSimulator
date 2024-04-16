@@ -13,8 +13,14 @@ namespace MultiplayerTanks
         [SerializeField] protected Transform m_zoomOpticsPosition;
         [Header("Turret")]
         [SerializeField] protected Turret m_turret;
+        [Header("TeamId")]
+        [SerializeField] private int m_teamId;
+        [SerializeField] private VehicleViewer m_viewer;
         public Transform ZoomOpticsPosition => m_zoomOpticsPosition;
         public Turret Turret => m_turret;
+
+        public int TeamId { get => m_teamId; set => m_teamId = value; }
+        public VehicleViewer Viewer { get => m_viewer; set => m_viewer = value; }
 
         protected Vector3 targetInputControl;
 

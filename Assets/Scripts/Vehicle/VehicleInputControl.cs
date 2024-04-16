@@ -15,14 +15,15 @@ namespace MultiplayerTanks
 
             RaycastHit[] hits = Physics.RaycastAll(ray, AimDistance);
 
-            var rigidbody = Player.Local.ActiveVehicle.GetComponent<Rigidbody>();
+            var vehicle = Player.Local.ActiveVehicle;
 
-            foreach(var hit in hits)
+            for (int i = hits.Length - 1; i >= 0; i--)
             {
-                if (hit.rigidbody == rigidbody || hit.collider.isTrigger)
-                    continue;
+                if (hits[i].collider.isTrigger) continue;
 
-                return hit.point;
+                if (hits[i].collider.transform.root.GetComponent<Vehicle>() == vehicle) continue;
+
+                return hits[i].point;
             }
 
             return ray.GetPoint(AimDistance);

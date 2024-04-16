@@ -30,7 +30,7 @@ namespace MultiplayerTanks
 
         public void Reset()
         {
-            for (int i =0; i < m_colliders.Length;i++)
+            for (int i = 0; i < m_colliders.Length;i++)
             {
                 m_colliders[i].brakeTorque = 0;
                 m_colliders[i].motorTorque = 0;

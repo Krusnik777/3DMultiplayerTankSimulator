@@ -5586,7 +5586,7 @@ MonoBehaviour:
   m_distanceLerpRate: 20
   m_zoomMaskEffect: {fileID: 510601382}
   m_zoomedFOV: 15
-  m_zoomedMaxVerticalAngle: 5
+  m_zoomedMaxVerticalAngle: 30
 --- !u!1 &1842696192
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,4 +24,4 @@ MonoBehaviour:
   m_armorPenetration: 50
   m_armorPenetrationSpread: 0.25
   m_normalizationAngle: 5
-  m_ricochetAngle: 60
+  m_ricochetAngle: 70

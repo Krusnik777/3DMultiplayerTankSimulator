@@ -148,6 +148,7 @@ namespace MultiplayerTanks
 
             ActiveVehicle = playerVehicle.GetComponent<Vehicle>();
             ActiveVehicle.Owner = netIdentity;
+            ActiveVehicle.TeamId = m_teamId;
 
             RpcSetVehicle(ActiveVehicle.netIdentity);
         }
@@ -159,7 +160,8 @@ namespace MultiplayerTanks
 
             ActiveVehicle = vehicle.GetComponent<Vehicle>();
             ActiveVehicle.Owner = netIdentity;
-            
+            ActiveVehicle.TeamId = m_teamId;
+
             if (ActiveVehicle != null && ActiveVehicle.isOwned && VehicleCamera.Instance != null)
             {
                 VehicleCamera.Instance.SetTarget(ActiveVehicle);

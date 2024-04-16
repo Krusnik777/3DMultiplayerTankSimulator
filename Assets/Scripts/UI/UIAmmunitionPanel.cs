@@ -1,3 +1,4 @@
+using NetworkSpaceShooter;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,28 +18,22 @@ namespace MultiplayerTanks
 
         private void Start()
         {
-            NetworkSessionManager.Events.PlayerVehicleSpawned += OnPlayerVehicleSpawned;
+            NetworkSessionManager.Match.MatchStart += OnMatchStart;
+            NetworkSessionManager.Match.MatchEnd += OnMatchEnd;
         }
 
         private void OnDisable()
         {
-            if (NetworkSessionManager.Instance != null)
-                NetworkSessionManager.Events.PlayerVehicleSpawned -= OnPlayerVehicleSpawned;
-
-            if (m_turret != null)
+            if (NetworkSessionManager.Match != null)
             {
-                m_turret.UpdateSelectedAmmunition -= OnTurretUpdateSelectedAmmunition;  
-            }
-
-            for (int i = 0; i < allAmmunition.Count; i++)
-            {
-                allAmmunition[i].AmmoCountChanged -= OnAmmoCountChanged;
+                NetworkSessionManager.Match.MatchStart -= OnMatchStart;
+                NetworkSessionManager.Match.MatchEnd -= OnMatchEnd;
             }
         }
 
-        private void OnPlayerVehicleSpawned(Vehicle vehicle)
+        private void OnMatchStart()
         {
-            m_turret = vehicle.Turret;
+            m_turret = Player.Local.ActiveVehicle.Turret;
             m_turret.UpdateSelectedAmmunition += OnTurretUpdateSelectedAmmunition;
 
             allAmmunitionElements.Clear();
@@ -61,7 +56,24 @@ namespace MultiplayerTanks
                 allAmmunitionElements.Add(ammunitionElement);
                 allAmmunition.Add(m_turret.Ammunition[i]);
 
-                if (i == 0) ammunitionElement.Select();
+                if (i == 0)
+                {
+                    ammunitionElement.Select();
+                    lastSelectedAmmunitionIndex = i;
+                }
+            }
+        }
+
+        private void OnMatchEnd()
+        {
+            if (m_turret != null)
+            {
+                m_turret.UpdateSelectedAmmunition -= OnTurretUpdateSelectedAmmunition;
+            }
+
+            for (int i = 0; i < allAmmunition.Count; i++)
+            {
+                allAmmunition[i].AmmoCountChanged -= OnAmmoCountChanged;
             }
         }
 

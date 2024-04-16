@@ -10,7 +10,6 @@ namespace MultiplayerTanks
 
     public class Armor : MonoBehaviour
     {
-        [SerializeField] private Transform m_parent;
         [SerializeField] private ArmorType m_type;
         [SerializeField] private Destructible m_destructible;
         [SerializeField] private int m_thickness;
@@ -20,10 +19,5 @@ namespace MultiplayerTanks
         public int Thickness => m_thickness;
 
         public void SetDestructible(Destructible destructible) => m_destructible = destructible;
-
-        private void Awake()
-        {
-            transform.SetParent(m_parent);
-        }
     }
 }

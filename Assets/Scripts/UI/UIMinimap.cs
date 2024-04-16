@@ -5,12 +5,13 @@ namespace MultiplayerTanks
 {
     public class UIMinimap : MonoBehaviour
     {
+        [SerializeField] private Transform m_mainCanvas;
         [SerializeField] private SizeMap m_sizeMap;
         [SerializeField] private UITankMark m_tankMarkPrefab;
         [SerializeField] private Image m_background;
 
         private UITankMark[] m_tankMarks;
-        private Player[] m_players;
+        private Vehicle[] m_vehicles;
 
         private void Start()
         {
@@ -33,10 +34,21 @@ namespace MultiplayerTanks
 
             for (int i = 0; i < m_tankMarks.Length; i++)
             {
-                if (m_players[i] == null) continue;
+                if (m_vehicles[i] == null) continue;
 
-                Vector3 normalizedPosition = m_sizeMap.GetNormalizedPosition(m_players[i].ActiveVehicle.transform.position);
+                if (m_vehicles[i] != Player.Local.ActiveVehicle)
+                {
+                    bool isVisible = Player.Local.ActiveVehicle.Viewer.IsVisible(m_vehicles[i].netIdentity);
+
+                    m_tankMarks[i].gameObject.SetActive(isVisible);
+                }
+
+                if (!m_tankMarks[i].gameObject.activeSelf) continue;
+
+                Vector3 normalizedPosition = m_sizeMap.GetNormalizedPosition(m_vehicles[i].transform.position);
                 Vector3 positionInMinimap = new Vector3(normalizedPosition.x * m_background.rectTransform.sizeDelta.x * 0.5f, normalizedPosition.z * m_background.rectTransform.sizeDelta.y * 0.5f, 0);
+                positionInMinimap.x *= m_mainCanvas.localScale.x;
+                positionInMinimap.y *= m_mainCanvas.localScale.y;
 
                 m_tankMarks[i].transform.position = m_background.transform.position + positionInMinimap;
             }
@@ -44,15 +56,15 @@ namespace MultiplayerTanks
 
         private void OnMatchStart()
         {
-            m_players = FindObjectsOfType<Player>();
+            m_vehicles = FindObjectsOfType<Vehicle>();
 
-            m_tankMarks = new UITankMark[m_players.Length];
+            m_tankMarks = new UITankMark[m_vehicles.Length];
 
             for (int i = 0; i < m_tankMarks.Length; i++)
             {
                 m_tankMarks[i] = Instantiate(m_tankMarkPrefab);
 
-                if (m_players[i].TeamId == Player.Local.TeamId) m_tankMarks[i].SetLocalColor();
+                if (m_vehicles[i].TeamId == Player.Local.TeamId) m_tankMarks[i].SetLocalColor();
                 else m_tankMarks[i].SetOtherColor();
 
                 m_tankMarks[i].transform.SetParent(m_background.transform);
