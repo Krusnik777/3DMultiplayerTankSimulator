@@ -28,22 +28,41 @@ namespace MultiplayerTanks
 
         public bool IsStopped { get; set; }
 
+        [SyncVar(hook = nameof(SetHidden))]
+        private bool syncIsHidden;
+        public bool IsHidden { get => syncIsHidden; set => syncIsHidden = value; }
+
+        protected float syncLinearVelocity;
+
+        private HidingSpot currentHidingSpot;
+        public HidingSpot CurrentHidingSpot => currentHidingSpot;
+
         public float NormalizedLinearVelocity
         {
             get
             {
-                if (Mathf.Approximately(0, LinearVelocity)) return 0;
+                if (Mathf.Approximately(0, syncLinearVelocity)) return 0;
 
-                return Mathf.Clamp01(LinearVelocity / m_maxLinearSpeed);
+                return Mathf.Clamp01(syncLinearVelocity / m_maxLinearSpeed);
             }
         }
+
+        public void SetHidingSpot(HidingSpot hidingSpot) => currentHidingSpot = hidingSpot;
 
         public void SetTargetControl(Vector3 control) => targetInputControl = control.normalized;
 
         public void SetVisible(bool visible)
         {
-            if (visible) SetLayerToAll("Default");
-            else SetLayerToAll("IgnoreMainCamera");
+            if (visible)
+            {
+                if(gameObject.layer != LayerMask.NameToLayer("Default"))
+                    SetLayerToAll("Default");
+            }
+            else
+            {
+                if (gameObject.layer != LayerMask.NameToLayer("IgnoreMainCamera"))
+                    SetLayerToAll("IgnoreMainCamera");
+            }
         }
 
         public void Fire() => m_turret.Fire();
@@ -102,6 +121,11 @@ namespace MultiplayerTanks
         public NetworkIdentity Owner;
 
         private void T(NetworkIdentity oldValue, NetworkIdentity newValue) { }
+
+        private void SetHidden(bool oldValue, bool newValue)
+        {
+            syncIsHidden = newValue;
+        }
 
     }
 }

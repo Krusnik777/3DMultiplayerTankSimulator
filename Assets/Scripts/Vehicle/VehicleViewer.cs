@@ -7,9 +7,13 @@ namespace MultiplayerTanks
     [RequireComponent(typeof(Vehicle))]
     public class VehicleViewer : NetworkBehaviour
     {
+        private const float UPDATE_INTERVAL = 0.33f;
+
+        [SerializeField] private float m_camouflageDistance = 150.0f;
         [SerializeField] private float m_xrayDistance = 50.0f;
-        [SerializeField] private float m_viewDistance;
-        [SerializeField] private float m_exitTimeFromDiscovery = 10.0f;
+        [SerializeField] private float m_viewDistance = 300.0f;
+        [SerializeField] private float m_hiddenDistance = 20.0f;
+        [SerializeField] private float m_exitTimeFromDiscovery = 5.0f;
         [SerializeField] private Transform[] m_viewPoints;
         [SerializeField] private Color m_color; // For DEBUG
 
@@ -20,6 +24,7 @@ namespace MultiplayerTanks
         private List<float> remainingTimes = new List<float>();
 
         private Vehicle m_vehicle;
+        private float remainingTimeLastUpdate;
 
         public bool IsVisible(NetworkIdentity identity) => visibleVehicles.Contains(identity);
 
@@ -27,10 +32,24 @@ namespace MultiplayerTanks
         {
             var distance = Vector3.Distance(transform.position, dimensions.transform.position);
 
+            if (dimensions.Vehicle.IsHidden && distance > m_hiddenDistance) return false;
+
+            if (Vector3.Distance(point, dimensions.transform.position) <= m_xrayDistance) return true;
+
             if (distance > m_viewDistance) return false;
 
+            var currentViewDistance = m_viewDistance;
+
+            if (distance >= m_camouflageDistance)
+            {
+                var camouflage = dimensions.Vehicle.GetComponent<VehicleCamouflage>();
+
+                if (camouflage != null) currentViewDistance = m_viewDistance - camouflage.CurrentDistance;
+            }
+
+            if (distance > currentViewDistance) return false;
+
             return dimensions.IsVisibleFromPoint(transform.root, point, m_color);
-            
         }
 
         public override void OnStartServer()
@@ -54,41 +73,43 @@ namespace MultiplayerTanks
         {
             if (!isServer) return;
 
-            foreach (var dimensions in allVehicleDimensions)
+            remainingTimeLastUpdate += Time.deltaTime;
+
+            if (remainingTimeLastUpdate >= UPDATE_INTERVAL)
             {
-                if (dimensions.Vehicle == null) continue;
-
-                bool isVisible = false;
-
-                if (Vector3.Distance(m_vehicle.transform.position, dimensions.transform.position) < m_xrayDistance) isVisible = true;
-
-                if (!isVisible)
+                foreach (var dimensions in allVehicleDimensions)
                 {
+                    if (dimensions.Vehicle == null) continue;
+
+                    bool isVisible = false;
+
                     foreach (var point in m_viewPoints)
                     {
                         isVisible = CheckVisibility(point.position, dimensions);
 
                         if (isVisible) break;
                     }
+
+                    if (isVisible && !visibleVehicles.Contains(dimensions.Vehicle.netIdentity))
+                    {
+                        visibleVehicles.Add(dimensions.Vehicle.netIdentity);
+                        remainingTimes.Add(-1);
+                    }
+
+                    if (isVisible && visibleVehicles.Contains(dimensions.Vehicle.netIdentity))
+                    {
+                        remainingTimes[visibleVehicles.IndexOf(dimensions.Vehicle.netIdentity)] = -1;
+                    }
+
+                    if (!isVisible && visibleVehicles.Contains(dimensions.Vehicle.netIdentity))
+                    {
+                        if (remainingTimes[visibleVehicles.IndexOf(dimensions.Vehicle.netIdentity)] == -1)
+                            remainingTimes[visibleVehicles.IndexOf(dimensions.Vehicle.netIdentity)] = m_exitTimeFromDiscovery;
+                        //visibleVehicles.Remove(dimensions.Vehicle.netIdentity);
+                    }
                 }
 
-                if (isVisible && !visibleVehicles.Contains(dimensions.Vehicle.netIdentity))
-                {
-                    visibleVehicles.Add(dimensions.Vehicle.netIdentity);
-                    remainingTimes.Add(-1);
-                }
-
-                if (isVisible && visibleVehicles.Contains(dimensions.Vehicle.netIdentity))
-                {
-                    remainingTimes[visibleVehicles.IndexOf(dimensions.Vehicle.netIdentity)] = -1;
-                }
-
-                if (!isVisible && visibleVehicles.Contains(dimensions.Vehicle.netIdentity))
-                {
-                    if (remainingTimes[visibleVehicles.IndexOf(dimensions.Vehicle.netIdentity)] == -1)
-                        remainingTimes[visibleVehicles.IndexOf(dimensions.Vehicle.netIdentity)] = m_exitTimeFromDiscovery;
-                    //visibleVehicles.Remove(dimensions.Vehicle.netIdentity);
-                }
+                remainingTimeLastUpdate = 0;
             }
 
             for (int i = 0; i < remainingTimes.Count; i++)

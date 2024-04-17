@@ -34,6 +34,8 @@ namespace MultiplayerTanks
             {
                 if (m_tanksInfo[i] == null || m_notLocalVehicles[i] == null) continue;
 
+                if (Player.Local == null || Player.Local.ActiveVehicle == null) continue;
+
                 bool isVisible = Player.Local.ActiveVehicle.Viewer.IsVisible(m_tanksInfo[i].Tank.netIdentity);
 
                 m_tanksInfo[i].gameObject.SetActive(isVisible);

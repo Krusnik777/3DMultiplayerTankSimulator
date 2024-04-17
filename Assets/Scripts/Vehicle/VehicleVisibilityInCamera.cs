@@ -22,6 +22,10 @@ namespace MultiplayerTanks
         {
             foreach (var vehicle in allVehicles)
             {
+                if (vehicle == null) continue;
+
+                if (Player.Local == null || Player.Local.ActiveVehicle == null) continue;
+
                 bool isVisible = Player.Local.ActiveVehicle.Viewer.IsVisible(vehicle.netIdentity);
 
                 vehicle.SetVisible(isVisible);

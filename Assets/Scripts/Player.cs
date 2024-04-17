@@ -115,6 +115,11 @@ namespace MultiplayerTanks
                 if (ActiveVehicle != null)
                 {
                     ActiveVehicle.SetVisible(!VehicleCamera.Instance.IsZoomed);
+
+                    if (ActiveVehicle.CurrentHidingSpot != null)
+                    {
+                        ActiveVehicle.CurrentHidingSpot.SetVisible(!VehicleCamera.Instance.IsZoomed);
+                    }    
                 }
             }
 

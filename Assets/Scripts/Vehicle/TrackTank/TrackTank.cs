@@ -165,6 +165,8 @@ namespace MultiplayerTanks
                 UpdateMotorTorque();
 
                 if (!IsStopped) CmdUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
+
+                CmdUpdateLinearVelocity(LinearVelocity);
             }
         }
 
@@ -306,6 +308,12 @@ namespace MultiplayerTanks
         }
 
         #endregion
+
+        [Command]
+        private void CmdUpdateLinearVelocity(float velocity)
+        {
+            syncLinearVelocity = velocity;
+        }
 
     }
 }

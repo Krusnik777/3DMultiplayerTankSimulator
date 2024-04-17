@@ -1010,6 +1010,7 @@ GameObject:
   - component: {fileID: 6487408781051307265}
   - component: {fileID: 164512252532151213}
   - component: {fileID: 8450847557092819431}
+  - component: {fileID: 336393925025725844}
   m_Layer: 0
   m_Name: Tank
   m_TagString: Untagged
@@ -1049,7 +1050,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1535959902841066760}
   serializedVersion: 4
-  m_Mass: 39000
+  m_Mass: 26000
   m_Drag: 0.5
   m_AngularDrag: 0.5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1321,10 +1322,10 @@ MonoBehaviour:
   m_maxBackwardTorque: 5000
   m_brakeTorque: 50000
   m_rollingResistance: 30000
-  m_rotateTorqueInPlace: 7000
-  m_rotateBrakeInPlace: 700
-  m_rotateTorqueInMotion: 9000
-  m_rotateBrakeInMotion: 900
+  m_rotateTorqueInPlace: 5000
+  m_rotateBrakeInPlace: 500
+  m_rotateTorqueInMotion: 7000
+  m_rotateBrakeInMotion: 700
   m_minSidewayStiffnessInPlace: 0.1
   m_minSidewayStiffnessInMotion: 0.2
 --- !u!114 &4330194891626588053
@@ -1588,13 +1589,31 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
+  m_camouflageDistance: 150
   m_xrayDistance: 50
   m_viewDistance: 300
+  m_hiddenDistance: 20
   m_exitTimeFromDiscovery: 10
   m_viewPoints:
   - {fileID: 6449498778329028001}
   - {fileID: 7110553942684299520}
   m_color: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &336393925025725844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1535959902841066760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dad739cec187c746b8cad734f2ce57f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_baseDistance: 70
+  m_percent: 0
+  m_percentLerpRate: 0.5
+  m_percentOfFire: 0.07
 --- !u!1 &1686041495356012570
 GameObject:
   m_ObjectHideFlags: 0

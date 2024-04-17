@@ -35,15 +35,31 @@ namespace MultiplayerTanks
         private Armor hittedArmor;
         public Armor HittedArmor => hittedArmor;
 
+        private Destructible hittedHiddedDestructible;
+
         public ProjectileHitResult GetHitResult()
         {
             ProjectileHitResult hitResult = new ProjectileHitResult();
+
+            hitResult.type = ProjectileHitType.Environment;
             hitResult.damage = 0;
+            hitResult.point = raycastHit.point;
 
             if (hittedArmor == null)
             {
-                hitResult.type = ProjectileHitType.Environment;
-                hitResult.point = raycastHit.point;
+                if (hittedHiddedDestructible != null)
+                {
+                    hittedArmor = hittedHiddedDestructible.GetComponentInChildren<Armor>();
+
+                    if (hittedArmor != null)
+                    {
+                        hitResult.damage = m_projectile.Properties.GetSpreadDamage();
+
+                        if (hittedArmor.Type == ArmorType.Module) hitResult.type = ProjectileHitType.ModulePenetration;
+
+                        if (hittedArmor.Type == ArmorType.Vehicle) hitResult.type = ProjectileHitType.Penetration;
+                    }
+                }
 
                 return hitResult;
             }
@@ -111,6 +127,35 @@ namespace MultiplayerTanks
 
             if (Physics.Raycast(transform.position, transform.forward, out raycastHit, m_projectile.Properties.Velocity * Time.deltaTime * RAY_ADVANCE))
             {
+                // Hiding Spots
+
+                var hidingSpot = raycastHit.collider.transform.root.GetComponent<HidingSpot>();
+
+                if (hidingSpot != null)
+                {
+                    if (hidingSpot.HiddenVehicle != null)
+                    {
+                        if (hidingSpot.HiddenVehicle.Owner != m_projectile.Owner)
+                        {
+                            if (hidingSpot.HiddenVehicle.IsHidden)
+                            {
+                                hittedHiddedDestructible = hidingSpot.HiddenVehicle;
+                                hidingSpot.UnHide();
+                                isHit = true;
+                            }
+                            else
+                            {
+                                hidingSpot.UnHide();
+                            }
+                        }
+                        
+                        return;
+                    }
+                    else return;
+                }
+
+                // Armor
+
                 var armor = raycastHit.collider.GetComponent<Armor>();
 
                 if (armor != null)

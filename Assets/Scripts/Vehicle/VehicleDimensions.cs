@@ -10,23 +10,25 @@ namespace MultiplayerTanks
         private Vehicle m_vehicle;
         public Vehicle Vehicle => m_vehicle;
 
+        private RaycastHit[] hits = new RaycastHit[10];
+
         public bool IsVisibleFromPoint(Transform source, Vector3 point, Color color)
         {
             bool visible = true;
-
-            foreach (var p in m_points)
+            
+            for (int i = 0; i < m_points.Length; i++)
             {
                 visible = true;
 
-                Debug.DrawLine(point, p.position, color);
+                //Debug.DrawLine(point, m_points[i].position, color);
 
-                RaycastHit[] hits = Physics.RaycastAll(point, (p.position - point).normalized, Vector3.Distance(point, p.position));
+                int count = Physics.RaycastNonAlloc(point, (m_points[i].position - point).normalized, hits, Vector3.Distance(point, m_points[i].position));
 
-                foreach (var hit in hits)
+                for (int j = 0; j < count; j++)
                 {
-                    if (hit.collider.transform.root == source) continue;
+                    if (hits[j].collider.transform.root == source) continue;
 
-                    if (hit.collider.transform.root == transform.root) continue;
+                    if (hits[j].collider.transform.root == transform.root) continue;
 
                     visible = false;
                 }
@@ -34,7 +36,7 @@ namespace MultiplayerTanks
                 if (visible) return visible;
             }
 
-            return visible;
+            return false;
         }
 
         private void Awake()

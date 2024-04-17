@@ -25,6 +25,7 @@ namespace MultiplayerTanks
         public float FireTimerNormalized => fireTimer / m_fireRate;
 
         public event UnityAction<int> UpdateSelectedAmmunition;
+        public event UnityAction Fired;
 
         public void SetSelectedProjectile(int index)
         {
@@ -77,6 +78,8 @@ namespace MultiplayerTanks
             fireTimer = m_fireRate;
 
             RpcFire();
+
+            Fired?.Invoke();
         }
 
         [ClientRpc]
@@ -87,6 +90,8 @@ namespace MultiplayerTanks
             fireTimer = m_fireRate;
 
             OnFire();
+
+            Fired?.Invoke();
         }
 
     }
