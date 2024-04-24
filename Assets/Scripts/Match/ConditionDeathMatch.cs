@@ -18,16 +18,16 @@ namespace MultiplayerTanks
         {
             Reset();
 
-            foreach (var player in FindObjectsOfType<Player>())
+            foreach (var member in FindObjectsOfType<MatchMember>())
             {
-                if (player.ActiveVehicle != null)
+                if (member.ActiveVehicle != null)
                 {
-                    player.ActiveVehicle.Destroyed += OnVehicleDestroyed;
+                    member.ActiveVehicle.Destroyed += OnVehicleDestroyed;
 
-                    if (player.TeamId == TeamSide.TeamRed)
+                    if (member.TeamId == TeamSide.TeamRed)
                         red++;
                     else
-                    if (player.TeamId == TeamSide.TeamBlue)
+                    if (member.TeamId == TeamSide.TeamBlue)
                         blue++;
                 }
             }
@@ -51,11 +51,11 @@ namespace MultiplayerTanks
 
             if (vehicle == null) return;
 
-            var ownerPlayer = vehicle.Owner?.GetComponent<Player>();
+            var ownerMember = vehicle.Owner?.GetComponent<MatchMember>();
 
-            if (ownerPlayer == null) return;
+            if (ownerMember == null) return;
 
-            switch (ownerPlayer.TeamId)
+            switch (ownerMember.TeamId)
             {
                 case TeamSide.TeamRed : red--; break;
                 case TeamSide.TeamBlue : blue--; break;

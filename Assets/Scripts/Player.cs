@@ -111,7 +111,8 @@ namespace MultiplayerTanks
 
             GameObject playerVehicle = Instantiate(m_vehiclePrefab.gameObject, transform.position, Quaternion.identity);
 
-            playerVehicle.transform.position = m_teamId % 2 == 0 ? NetworkSessionManager.Instance.RandomSpawnPointRed : NetworkSessionManager.Instance.RandomSpawnPointBlue;
+            playerVehicle.transform.position = NetworkSessionManager.Instance.GetSpawnPointByTeam(m_teamId);
+            playerVehicle.transform.forward = NetworkSessionManager.Instance.GetForwardByTeamZone(m_teamId);
 
             NetworkServer.Spawn(playerVehicle, netIdentity.connectionToClient);
 

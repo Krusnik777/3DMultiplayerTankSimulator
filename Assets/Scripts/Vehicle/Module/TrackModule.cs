@@ -82,6 +82,7 @@ namespace MultiplayerTanks
 
         private void TakeAwayMobility()
         {
+            m_tank.SetTargetControl(new Vector3(0, 1, 0));
             m_tank.IsStopped = true;
             m_tank.enabled = false;
         }

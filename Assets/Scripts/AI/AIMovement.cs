@@ -86,8 +86,6 @@ namespace MultiplayerTanks
 
         private void Update()
         {
-            SetDestination(GameObject.FindGameObjectWithTag("Finish").transform.position);
-
             if (m_pathUpdateRate > 0)
             {
                 timerUpdatePath += Time.deltaTime;
@@ -115,7 +113,8 @@ namespace MultiplayerTanks
             }
 
             float turnControl = 0;
-            float forwardThrust = 1;
+            float forwardThrust = 0.5f;
+            float brake = 0;
 
             var referenceDirection = GetReferenceMovementDirectionZX();
             var tankDirection = GetTankDirectionZX();
@@ -126,7 +125,9 @@ namespace MultiplayerTanks
 
             if (forwardSensorState.Item1)
             {
-                forwardThrust = 0;
+                forwardThrust = -1;
+
+                /*
 
                 if (!leftSensorState.Item1)
                 {
@@ -141,7 +142,7 @@ namespace MultiplayerTanks
                 else
                 {
                     forwardThrust = -1;
-                }
+                }*/
             }
             else
             {
@@ -151,11 +152,15 @@ namespace MultiplayerTanks
 
                 if (leftSensorState.Item1 && leftSensorState.Item2 < minSideDistance && turnControl < 0) turnControl = -turnControl;
                 if (rightSensorState.Item1 && rightSensorState.Item2 < minSideDistance && turnControl < 0) turnControl = -turnControl;
-
-                //if (turnControl > 0.5 || turnControl < -0.5f) forwardThrust = forwardThrust/2; // Correcting forward thrust
             }
 
-            m_vehicle.SetTargetControl(new Vector3(turnControl, 0, forwardThrust));
+            if (turnControl > 0.1 || turnControl < -0.1f) // Correcting forward thrust
+            {
+                forwardThrust = 0;
+                brake = 1;
+            }
+
+            m_vehicle.SetTargetControl(new Vector3(turnControl, brake, forwardThrust));
         }
 
         private void CalculatePath(Vector3 target)

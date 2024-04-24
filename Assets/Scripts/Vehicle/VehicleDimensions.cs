@@ -6,6 +6,8 @@ namespace MultiplayerTanks
     public class VehicleDimensions : MonoBehaviour
     {
         [SerializeField] private Transform[] m_points;
+        [SerializeField] private Transform[] m_priorityFiringPoints;
+        [SerializeField][Range(0.0f,1.0f)] private float m_priorityHitChance;
 
         private Vehicle m_vehicle;
         public Vehicle Vehicle => m_vehicle;
@@ -37,6 +39,18 @@ namespace MultiplayerTanks
             }
 
             return false;
+        }
+
+        public Transform GetPriorityFirePoint()
+        {
+            var fireTarget = m_priorityFiringPoints[0];
+
+            if (Random.value > 1 - m_priorityHitChance)
+            {
+                fireTarget = m_priorityFiringPoints[Random.Range(1, m_priorityFiringPoints.Length)];
+            }
+
+            return fireTarget;
         }
 
         private void Awake()

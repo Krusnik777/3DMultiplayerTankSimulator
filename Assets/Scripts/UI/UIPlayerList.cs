@@ -15,12 +15,17 @@ namespace MultiplayerTanks
         {
             MatchMemberList.UpdateList += OnUpdatePlayerList;
             Player.ChangeFrags += OnChangeFrags;
+
+            NetworkSessionManager.Match.MatchStart += OnMatchStart;
         }
 
         private void OnDisable()
         {
             MatchMemberList.UpdateList -= OnUpdatePlayerList;
             Player.ChangeFrags -= OnChangeFrags;
+
+            if (NetworkSessionManager.Match != null)
+                NetworkSessionManager.Match.MatchStart -= OnMatchStart;
         }
 
         private void OnUpdatePlayerList(List<MatchMemberData> playerDataList)
@@ -53,6 +58,22 @@ namespace MultiplayerTanks
             m_allPlayerLabels.Add(label);
         }
 
+        private void OnMemberVehicleDestroyed(Destructible dest)
+        {
+            var vehicle = dest as Vehicle;
+
+            foreach (var label in m_allPlayerLabels)
+            {
+                if (label.NetId == vehicle.Owner.netId)
+                {
+                    label.ChangeToDefeated();
+                    break;
+                }
+            }
+
+            dest.Destroyed -= OnMemberVehicleDestroyed;
+        }
+
         private void OnChangeFrags(MatchMember member, int frags)
         {
             for (int i = 0; i < m_allPlayerLabels.Count; i++)
@@ -61,6 +82,16 @@ namespace MultiplayerTanks
                 {
                     m_allPlayerLabels[i].UpdateFrags(frags);
                 }
+            }
+        }
+
+        private void OnMatchStart()
+        {
+            var vehicles = FindObjectsOfType<Vehicle>();
+
+            for (int i = 0; i < vehicles.Length; i++)
+            {
+                vehicles[i].Destroyed += OnMemberVehicleDestroyed;
             }
         }
     }

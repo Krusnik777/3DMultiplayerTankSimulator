@@ -16,6 +16,7 @@ namespace MultiplayerTanks
             m_data = new MatchMemberData((int)netId, m_nickname, m_teamId, netIdentity);
 
             transform.position = NetworkSessionManager.Instance.GetSpawnPointByTeam(m_teamId);
+            transform.forward = NetworkSessionManager.Instance.GetForwardByTeamZone(m_teamId);
 
             ActiveVehicle = m_vehicle;
             ActiveVehicle.TeamId = m_teamId;

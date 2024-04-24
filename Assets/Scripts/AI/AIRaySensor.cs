@@ -18,7 +18,8 @@ namespace MultiplayerTanks
 
                 if (Physics.Raycast(ray.position, ray.forward, out hit, m_raycastDistance))
                 {
-                    if (dist < 0 || hit.distance < dist) dist = hit.distance;
+                    if (!hit.collider.isTrigger)
+                        if (dist < 0 || hit.distance < dist) dist = hit.distance;
                 }
             }
 

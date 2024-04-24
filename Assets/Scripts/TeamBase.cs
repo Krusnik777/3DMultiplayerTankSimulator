@@ -12,6 +12,7 @@ namespace MultiplayerTanks
         [SerializeField] private List<Vehicle> m_allVehicles = new List<Vehicle>(); // Serialize for Debug
 
         public float CaptureLevel => m_captureLevel;
+        public int TeamId => m_teamId;
 
         public void Reset()
         {

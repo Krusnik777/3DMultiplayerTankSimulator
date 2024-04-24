@@ -26,6 +26,30 @@ namespace MultiplayerTanks
         private Vehicle m_vehicle;
         private float remainingTimeLastUpdate;
 
+        public List<Vehicle> GetAllVehicle()
+        {
+            var allVehicles = new List<Vehicle>(allVehicleDimensions.Count);
+
+            for (int i = 0; i < allVehicleDimensions.Count; i++)
+            {
+                allVehicles.Add(allVehicleDimensions[i].Vehicle);
+            }
+
+            return allVehicles;
+        }
+
+        public List<Vehicle> GetAllVisibleVehicle()
+        {
+            var allVehicles = new List<Vehicle>(allVehicleDimensions.Count);
+
+            for (int i = 0; i < visibleVehicles.Count; i++)
+            {
+                allVehicles.Add(visibleVehicles[i].GetComponent<Vehicle>());
+            }
+
+            return allVehicles;
+        }
+
         public bool IsVisible(NetworkIdentity identity) => visibleVehicles.Contains(identity);
 
         private bool CheckVisibility(Vector3 point, VehicleDimensions dimensions)

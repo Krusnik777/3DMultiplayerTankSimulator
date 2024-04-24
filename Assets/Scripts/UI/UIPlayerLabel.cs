@@ -25,5 +25,17 @@ namespace MultiplayerTanks
         {
             m_fragsText.text = frags.ToString();
         }
+
+        public void ChangeToDefeated()
+        {
+            Color color = m_backgroundImage.color;
+            color.a = 1;
+            m_backgroundImage.color = color;
+
+            color = m_nicknameText.color;
+            color.a = 0.2f;
+            m_nicknameText.color = color;
+            m_fragsText.color = color;
+        }
     }
 }

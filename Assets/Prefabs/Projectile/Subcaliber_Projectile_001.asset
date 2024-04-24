@@ -18,7 +18,7 @@ MonoBehaviour:
   m_velocity: 1200
   m_mass: 0.001
   m_impactForce: 5000
-  m_damage: 50
+  m_damage: 110
   m_damageSpread: 0.25
   m_caliber: 115
   m_armorPenetration: 100
