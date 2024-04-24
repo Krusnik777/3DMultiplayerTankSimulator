@@ -13,17 +13,17 @@ namespace MultiplayerTanks
 
         private void Start()
         {
-            PlayerList.UpdatePlayerList += OnUpdatePlayerList;
+            MatchMemberList.UpdateList += OnUpdatePlayerList;
             Player.ChangeFrags += OnChangeFrags;
         }
 
         private void OnDisable()
         {
-            PlayerList.UpdatePlayerList -= OnUpdatePlayerList;
+            MatchMemberList.UpdateList -= OnUpdatePlayerList;
             Player.ChangeFrags -= OnChangeFrags;
         }
 
-        private void OnUpdatePlayerList(List<PlayerData> playerDataList)
+        private void OnUpdatePlayerList(List<MatchMemberData> playerDataList)
         {
             for (int i = 0; i < m_localTeamPanel.childCount; i++)
             {
@@ -44,7 +44,7 @@ namespace MultiplayerTanks
             }
         }
 
-        private void AddPlayerLabel(PlayerData playerData, UIPlayerLabel playerLabel, Transform parent)
+        private void AddPlayerLabel(MatchMemberData playerData, UIPlayerLabel playerLabel, Transform parent)
         {
             UIPlayerLabel label = Instantiate(playerLabel);
             label.transform.SetParent(parent);
@@ -53,11 +53,11 @@ namespace MultiplayerTanks
             m_allPlayerLabels.Add(label);
         }
 
-        private void OnChangeFrags(int playerNetId, int frags)
+        private void OnChangeFrags(MatchMember member, int frags)
         {
             for (int i = 0; i < m_allPlayerLabels.Count; i++)
             {
-                if (m_allPlayerLabels[i].NetId == playerNetId)
+                if (m_allPlayerLabels[i].NetId == member.netId)
                 {
                     m_allPlayerLabels[i].UpdateFrags(frags);
                 }

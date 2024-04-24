@@ -30,6 +30,8 @@ namespace MultiplayerTanks
 
         private void Start()
         {
+            m_timeLeft = m_matchTime;
+
             if (isServer)
             {
                 enabled = false;

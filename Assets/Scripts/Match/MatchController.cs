@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using Mirror;
@@ -15,6 +16,11 @@ namespace MultiplayerTanks
     [RequireComponent(typeof(NetworkIdentity))]
     public class MatchController : NetworkBehaviour
     {
+        public static int TeamIdCounter;
+
+        [SerializeField] private MatchMemberSpawner m_spawner;
+        [SerializeField] private float m_delayAfterSpawn = 0.5f;
+
         public event UnityAction MatchStart;
         public event UnityAction MatchEnd;
 
@@ -28,6 +34,9 @@ namespace MultiplayerTanks
         public int WinTeamId = -1;
 
         private IMatchCondition[] m_matchConditions;
+
+        public static int GetNextTeam() => TeamIdCounter++ % 2;
+        public static void ResetTeamCounter() => TeamIdCounter = 1;
 
         private void Awake()
         {
@@ -59,29 +68,9 @@ namespace MultiplayerTanks
 
             m_matchActive = true;
 
-            foreach (var p in FindObjectsOfType<Player>())
-            {
-                if (p.ActiveVehicle != null)
-                {
-                    NetworkServer.UnSpawn(p.ActiveVehicle.gameObject);
-                    Destroy(p.ActiveVehicle.gameObject);
-                    p.ActiveVehicle = null;
-                }
-            }
+            m_spawner.SvRespawnAllMembers();
 
-            foreach (var p in FindObjectsOfType<Player>())
-            {
-                p.SvSpawnClientVehicle();
-            }
-
-            foreach (var condition in m_matchConditions)
-            {
-                condition.OnServerMatchStart(this);
-            }
-
-            SvMatchStart?.Invoke();
-
-            RpcMatchStart();
+            StartCoroutine(StartEventMatchWithDelay(m_delayAfterSpawn));
         }
 
         [Server]
@@ -123,6 +112,20 @@ namespace MultiplayerTanks
             WinTeamId = winTeamId;
 
             MatchEnd?.Invoke();
+        }
+
+        private IEnumerator StartEventMatchWithDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            foreach (var condition in m_matchConditions)
+            {
+                condition.OnServerMatchStart(this);
+            }
+
+            SvMatchStart?.Invoke();
+
+            RpcMatchStart();
         }
     }
 }

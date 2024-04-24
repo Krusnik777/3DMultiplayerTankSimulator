@@ -21,7 +21,7 @@ namespace MultiplayerTanks
             m_tank = tank;
 
             m_healthSlider.Init(m_tank, m_tank.TeamId, Player.Local.TeamId);
-            m_nickname.text = m_tank.Owner?.GetComponent<Player>().Nickname;
+            m_nickname.text = m_tank.Owner?.GetComponent<MatchMember>().Nickname;
             m_nickname.color = m_healthSlider.ActiveColor;
         }
     }

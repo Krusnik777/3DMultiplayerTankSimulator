@@ -35,7 +35,7 @@ namespace MultiplayerTanks
 
             if (m_allVehicles.Contains(vehicle)) return;
 
-            if (vehicle.Owner.GetComponent<Player>().TeamId == m_teamId) return;
+            if (vehicle.Owner.GetComponent<MatchMember>().TeamId == m_teamId) return;
 
             vehicle.HitPointsChange += OnHitPointsChange;
 

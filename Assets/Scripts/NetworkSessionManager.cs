@@ -20,6 +20,8 @@ namespace MultiplayerTanks
         public bool IsServer => mode == NetworkManagerMode.Host || mode == NetworkManagerMode.ServerOnly;
         public bool IsClient => mode == NetworkManagerMode.Host || mode == NetworkManagerMode.ClientOnly;
 
+        public Vector3 GetSpawnPointByTeam(int teamId) => teamId % 2 == 0 ? RandomSpawnPointRed : RandomSpawnPointBlue;
+
         public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
             base.OnServerAddPlayer(conn);

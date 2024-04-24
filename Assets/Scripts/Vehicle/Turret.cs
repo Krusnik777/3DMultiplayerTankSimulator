@@ -69,6 +69,12 @@ namespace MultiplayerTanks
         [Command]
         private void CmdFire()
         {
+            SvFire();
+        }
+
+        [Server]
+        public void SvFire()
+        {
             if (fireTimer > 0) return;
 
             if (!m_ammunition[syncSelectedAmmunitionIndex].SvDrawAmmo(1)) return;

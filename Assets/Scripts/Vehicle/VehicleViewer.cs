@@ -151,7 +151,5 @@ namespace MultiplayerTanks
                 }
             }
         }
-
-        
     }
 }

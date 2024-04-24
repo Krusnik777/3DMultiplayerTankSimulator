@@ -160,6 +160,15 @@ namespace MultiplayerTanks
 
         private void FixedUpdate()
         {
+            if (isServer)
+            {
+                UpdateMotorTorque();
+
+                if (!IsStopped) SvUpdateWheelRpm(LeftWheelRpm, RightWheelRpm);
+
+                SvUpdateLinearVelocity(LinearVelocity);
+            }
+
             if (isOwned)
             {
                 UpdateMotorTorque();
@@ -250,20 +259,20 @@ namespace MultiplayerTanks
 
                 if (targetSteering != 0 && (Mathf.Abs(m_leftWheelRow.MinRpm) < 1 || Mathf.Abs(m_rightWheelRow.MinRpm) < 1))
                 {
-                    m_leftWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion);
-                    m_rightWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion);
+                    m_leftWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion * Mathf.Sign(currentMotorTorque));
+                    m_rightWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion * Mathf.Sign(currentMotorTorque));
                 }
                 else
                 {
                     if (targetSteering < 0)
                     {
                         m_leftWheelRow.ApplyBrakeTorque(m_rotateBrakeInMotion);
-                        m_rightWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion);
+                        m_rightWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion * Mathf.Sign(currentMotorTorque));
                     }
 
                     if (targetSteering > 0)
                     {
-                        m_leftWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion);
+                        m_leftWheelRow.ApplyMotorTorque(m_rotateTorqueInMotion * Mathf.Sign(currentMotorTorque));
                         m_rightWheelRow.ApplyBrakeTorque(m_rotateBrakeInMotion);
                     }
                 }
@@ -312,8 +321,13 @@ namespace MultiplayerTanks
         [Command]
         private void CmdUpdateLinearVelocity(float velocity)
         {
-            syncLinearVelocity = velocity;
+            SvUpdateLinearVelocity(velocity);
         }
 
+        [Server]
+        private void SvUpdateLinearVelocity(float velocity)
+        {
+            syncLinearVelocity = velocity;
+        }
     }
 }

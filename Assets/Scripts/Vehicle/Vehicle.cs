@@ -105,7 +105,8 @@ namespace MultiplayerTanks
             set
             {
                 netAimPoint = value; // Client
-                m_commandMediator.CmdSetNetAim(this,value);
+
+                if (isOwned) m_commandMediator.CmdSetNetAim(this, value);
             }
         }
 

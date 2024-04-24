@@ -52,7 +52,12 @@ namespace MultiplayerTanks
                     SvAddFrags();
                 }
 
-                Owner.GetComponent<Player>().SvInvokeProjectileHit(hitResult);
+                if (Owner != null)
+                {
+                    Player player = Owner.GetComponent<Player>();
+
+                    if (player != null) player.SvInvokeProjectileHit(hitResult);
+                }
             }
 
             DestroyProjectile();
@@ -71,9 +76,9 @@ namespace MultiplayerTanks
             {
                 if (Owner != null)
                 {
-                    var player = Owner.GetComponent<Player>();
+                    var member = Owner.GetComponent<MatchMember>();
 
-                    if (player != null) player.Frags++;
+                    if (member != null) member.SvAddFrags();
                 }
             }
         }

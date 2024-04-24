@@ -3,55 +3,13 @@ using UnityEngine.Events;
 using Mirror;
 
 namespace MultiplayerTanks
-{
-    [System.Serializable]
-    public class PlayerData
-    {
-        public int Id;
-        public string Nickname;
-        public int TeamId;
-
-        public PlayerData(int id, string nickname, int teamId)
-        {
-            Id = id;
-            Nickname = nickname;
-            TeamId = teamId;
-        }
-    }
-
-    public static class PlayerDataWriteRead
-    {
-        public static void WritePlayerData(this NetworkWriter writer, PlayerData data)
-        {
-            writer.WriteInt(data.Id);
-            writer.WriteString(data.Nickname);
-            writer.WriteInt(data.TeamId);
-        }
-
-        public static PlayerData ReadPlayerData(this NetworkReader reader)
-        {
-            return new PlayerData(reader.ReadInt(), reader.ReadString(), reader.ReadInt());
-        }
-    }
-
-    [RequireComponent(typeof(NetworkIdentity))]
-    public class Player : NetworkBehaviour
+{    
+    public class Player : MatchMember
     {
         [SerializeField] private Vehicle m_vehiclePrefab;
         [SerializeField] private VehicleInputControl m_vehicleInputControl;
-        [Header("Player")]
-        [SyncVar(hook = nameof(OnNicknameChanged))]
-        public string Nickname;
-        [SyncVar]
-        [SerializeField] private int m_teamId;
-        public int TeamId => m_teamId;
 
         public event UnityAction<Vehicle> VehicleSpawned;
-
-        public Vehicle ActiveVehicle { get; set; }
-
-        private PlayerData m_playerData;
-        public PlayerData Data => m_playerData;
 
         public static Player Local
         {
@@ -69,15 +27,14 @@ namespace MultiplayerTanks
         {
             base.OnStartServer();
 
-            m_teamId = TeamIdCounter % 2;
-            TeamIdCounter++;
+            m_teamId = MatchController.GetNextTeam();
         }
 
         public override void OnStopServer()
         {
             base.OnStopServer();
 
-            PlayerList.Instance.SvRemovePlayer(m_playerData);
+            MatchMemberList.Instance.SvRemoveMatchMember(m_data);
         }
 
         public override void OnStartClient()
@@ -88,13 +45,14 @@ namespace MultiplayerTanks
             {
                 CmdSetName(NetworkSessionManager.Instance.GetComponent<NetworkManagerHUD>().PlayerNickname);
 
+                NetworkSessionManager.Match.MatchStart += OnMatchStart;
                 NetworkSessionManager.Match.MatchEnd += OnMatchEnd;
 
-                m_playerData = new PlayerData((int)netId, NetworkSessionManager.Instance.GetComponent<NetworkManagerHUD>().PlayerNickname, m_teamId);
+                m_data = new MatchMemberData((int)netId, NetworkSessionManager.Instance.GetComponent<NetworkManagerHUD>().PlayerNickname, m_teamId, netIdentity);
 
-                CmdAddPlayer(m_playerData);
+                CmdAddPlayer(m_data);
 
-                CmdUpdatePlayerData(m_playerData);
+                CmdUpdateData(m_data);
             }
         }
 
@@ -106,6 +64,12 @@ namespace MultiplayerTanks
             {
                 NetworkSessionManager.Match.MatchEnd -= OnMatchEnd;
             }
+        }
+
+        private void Start()
+        {
+            m_vehicleInputControl.enabled = false;
+            if (ActiveVehicle != null) ActiveVehicle.IsStopped = true;
         }
 
         private void Update()
@@ -172,76 +136,18 @@ namespace MultiplayerTanks
                 VehicleCamera.Instance.SetTarget(ActiveVehicle);
             }
 
-            m_vehicleInputControl.enabled = true;
+            m_vehicleInputControl.enabled = false;
+            ActiveVehicle.IsStopped = true;
 
             VehicleSpawned?.Invoke(ActiveVehicle);
         }
 
-        #region Nickname
-
-        [Command]
-        public void CmdSetName(string name)
-        {
-            Nickname = name;
-            gameObject.name = "Player_" + name;
-        }
-
-        private void OnNicknameChanged(string oldValue, string newValue)
-        {
-            gameObject.name = "Player_" + newValue; // on Client
-        }
-
-        #endregion
-
-        #region TeamId
-
-        private static int TeamIdCounter;
-
-        [Command]
-        public void CmdSetTeamID(int teamID)
-        {
-            m_teamId = teamID;
-        }
-
-        #endregion
-
         #region PlayerList
 
         [Command]
-        private void CmdAddPlayer(PlayerData data)
+        private void CmdAddPlayer(MatchMemberData data)
         {
-            PlayerList.Instance.SvAddPlayer(data);
-        }
-
-        [Command]
-        private void CmdUpdatePlayerData(PlayerData data)
-        {
-            m_playerData = data;
-        }
-
-        #endregion
-
-        #region Frags
-
-        public static event UnityAction<int, int> ChangeFrags;
-
-        [SyncVar(hook = nameof(OnFragsChanged))]
-        private int m_frags;
-        public int Frags
-        {
-            get => m_frags;
-            set
-            {
-                m_frags = value;
-                // Server
-                ChangeFrags?.Invoke((int)netId, m_frags);
-            }
-        }
-
-        // Client
-        private void OnFragsChanged(int oldValue, int newValue)
-        {
-            ChangeFrags?.Invoke((int)netId,newValue);
+            MatchMemberList.Instance.SvAddMatchMember(data);
         }
 
         #endregion
@@ -270,6 +176,12 @@ namespace MultiplayerTanks
         }
 
         #endregion
+
+        private void OnMatchStart()
+        {
+            m_vehicleInputControl.enabled = true;
+            if (ActiveVehicle != null) ActiveVehicle.IsStopped = false;
+        }
 
         private void OnMatchEnd()
         {
