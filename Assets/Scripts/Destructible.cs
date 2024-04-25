@@ -18,6 +18,7 @@ namespace MultiplayerTanks
 
         public int MaxHitPoints => m_maxHitPoints;
         public int HitPoints => currentHitPoints;
+        public bool HasCriticalHealth => currentHitPoints <= m_maxHitPoints * 0.4f;
 
         public event UnityAction<int> HitPointsChange;
         public event UnityAction<Destructible> Destroyed;

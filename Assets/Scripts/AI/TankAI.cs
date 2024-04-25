@@ -9,7 +9,8 @@ namespace MultiplayerTanks
         Support,
         InvaderBase,
         SmartInvader,
-        Interceptor
+        Interceptor,
+        HidingFromAttacks
     }
 
     [RequireComponent(typeof(NetworkIdentity))]
@@ -32,6 +33,8 @@ namespace MultiplayerTanks
         private int countTeamMember;
 
         private TeamBase m_ownBase;
+
+        private bool ignoreEnemies = false;
 
         private void Start()
         {
@@ -83,6 +86,7 @@ namespace MultiplayerTanks
         private void OnVehicleDestroyed(Destructible dest)
         {
             m_movement.enabled = false;
+            m_shooter.ResetTarget();
             m_shooter.enabled = false;
         }
 
@@ -158,6 +162,7 @@ namespace MultiplayerTanks
             if (m_behaviourType == AIBehaviourType.SmartInvader)
             {
                 m_movementTarget = AIPath.Instance.GetRandomStartInvadePoint();
+                ignoreEnemies = true;
             }
 
             if (m_behaviourType == AIBehaviourType.Interceptor)
@@ -165,19 +170,29 @@ namespace MultiplayerTanks
                 m_movementTarget = m_ownBase.transform.position;
             }
 
+            if (m_behaviourType == AIBehaviourType.HidingFromAttacks)
+            {
+                m_movementTarget = AIPath.Instance.GetRandomCover(m_vehicle.TeamId);
+            }
+
             m_movement.ResetPath();
         }
 
         private void UpdateBehaviour()
         {
-            if (m_behaviourType != AIBehaviourType.SmartInvader)
+            if (m_vehicle.HasCriticalHealth && m_behaviourType != AIBehaviourType.HidingFromAttacks)
+            {
+                StartBehaviour(AIBehaviourType.HidingFromAttacks);
+            }
+
+            if (!ignoreEnemies)
                 m_shooter.FindTarget();
 
             if (m_ownBase != null)
             {
                 if (m_ownBase.CaptureLevel > 0)
                 {
-                    if (Random.value > 1 - m_interceptorChance)
+                    if (Random.value > 1 - m_interceptorChance && !m_vehicle.HasCriticalHealth)
                         StartBehaviour(AIBehaviourType.Interceptor);
                 }
             }
@@ -203,6 +218,7 @@ namespace MultiplayerTanks
             if (m_behaviourType == AIBehaviourType.SmartInvader)
             {
                 m_movementTarget = AIPath.Instance.GetBasePoint(m_vehicle.TeamId);
+                ignoreEnemies = false;
             }
 
             if (m_behaviourType == AIBehaviourType.Interceptor)
@@ -212,6 +228,14 @@ namespace MultiplayerTanks
                     if (m_ownBase.CaptureLevel <= 0) SetStartBehaviour();
                     else m_movementTarget = m_ownBase.transform.position;
                 }
+            }
+
+            if (m_behaviourType == AIBehaviourType.HidingFromAttacks)
+            {
+                if (m_vehicle.TargetedByEnemy) 
+                    m_movementTarget = AIPath.Instance.GetRandomCover(m_vehicle.TeamId);
+
+                // or do something else
             }
 
             m_movement.ResetPath();

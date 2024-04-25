@@ -1809,10 +1809,10 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   m_behaviourType: 0
-  m_patrolChance: 0.75
+  m_patrolChance: 0.7
   m_supportChance: 0.2
   m_invaderBaseChance: 0.2
-  m_smartInvaderBaseChance: 0.2
+  m_smartInvaderBaseChance: 0.1
   m_interceptorChance: 0.75
   m_vehicle: {fileID: 630257824271744776}
   m_movement: {fileID: 7492282573272762788}
@@ -1829,7 +1829,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a984c07087b3c1439673e37e7c5e9fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_stopDistance: 2
+  m_stopDistance: 3.5
   m_pathUpdateRate: 0.33
   m_sensorForward: {fileID: 7597914022719635328}
   m_sensorBackward: {fileID: 830058743248556877}

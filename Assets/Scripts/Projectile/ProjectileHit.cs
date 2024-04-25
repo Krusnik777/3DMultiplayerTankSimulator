@@ -154,6 +154,8 @@ namespace MultiplayerTanks
                     else return;
                 }
 
+                if (raycastHit.collider.transform.root.GetComponent<TeamBase>()) return;
+
                 // Armor
 
                 var armor = raycastHit.collider.GetComponent<Armor>();

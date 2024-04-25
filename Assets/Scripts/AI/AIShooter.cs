@@ -45,12 +45,20 @@ namespace MultiplayerTanks
                 if (vehicleDimensions == null) return;
 
                 m_lookTransform = vehicleDimensions.GetPriorityFirePoint();
+                m_target.TargetedByEnemy = true;
             }
             else
             {
-                m_target = null;
-                m_lookTransform = null;
+                ResetTarget();
             }
+        }
+
+        public void ResetTarget()
+        {
+            if (m_target != null) m_target.TargetedByEnemy = false;
+
+            m_target = null;
+            m_lookTransform = null;
         }
 
         private void Awake()
@@ -77,11 +85,12 @@ namespace MultiplayerTanks
 
             RaycastHit hit;
 
-            if (Physics.Raycast(m_firePosition.position, m_firePosition.forward, out hit, 1000))
+            if (Physics.Raycast(m_firePosition.position, m_firePosition.forward, out hit, 1000,1, QueryTriggerInteraction.Ignore))
             {
                 if (hit.collider.transform.root == m_target.transform.root)
                 {
                     m_vehicle.Turret.SvFire();
+                    m_target.TargetedByEnemy = false;
                 }
             }
         }

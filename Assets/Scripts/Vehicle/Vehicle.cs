@@ -37,6 +37,8 @@ namespace MultiplayerTanks
         private HidingSpot currentHidingSpot;
         public HidingSpot CurrentHidingSpot => currentHidingSpot;
 
+        public bool TargetedByEnemy { get; set; }
+
         public float NormalizedLinearVelocity
         {
             get
